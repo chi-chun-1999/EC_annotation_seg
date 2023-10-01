@@ -11,17 +11,18 @@ let isDrawing = false;
 let points = [];
 let isEditing = false;
 let scale = 1;
+let canvasBackground = 'rgb(225, 225, 225)';
 
 function initCanvas() {
-	console.log('image.width: ' + image.width);
-	console.log('image.height: ' + image.height);
-    canvas.width = image.width;
-    canvas.height = image.height;
+    console.log('image.width: ' + image.width);
+    console.log('image.height: ' + image.height);
+    console.log('canvas.width: ' + canvas.width);
+    console.log('canvas.height: ' + canvas.height);
+    // canvas.width = image.width;
+    // canvas.height = image.height;
+    ctx.fillStyle = canvasBackground;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
     ctx.drawImage(image, 0, 0);
-	ctx.fillStyle = 'rgb(125, 125, 125)';
-	ctx.fillRect(0, 0, canvas.width, canvas.height);
-	console.log('canvas.width: ' + canvas.width);
-	console.log('canvas.height: ' + canvas.height);
 }
 
 // Function to start annotation
@@ -53,28 +54,32 @@ document.getElementById('saveAnnotation').addEventListener('click', () => {
 
 // Event listeners for mouse actions
 canvas.addEventListener('mousedown', (e) => {
-    const x = e.clientX - canvas.getBoundingClientRect().left;
-    const y = e.clientY - canvas.getBoundingClientRect().top;
+    let x = e.clientX - canvas.getBoundingClientRect().left;
+    let y = e.clientY - canvas.getBoundingClientRect().top;
+    // absoulte position
+    x = x / scale;
+    y = y / scale;
     if (isDrawing) {
 
         // if listen to shortcut key 'n', then finish the annotation
         if (e.keyCode === 78) {
             isDrawing = false;
-            drawPolygon();
+            drawImage();
             return;
         }
 
         if (e.button === 1) {
             isDrawing = false;
-            drawPolygon();
+            drawImage();
             return;
         }
+
 
         points.push({
             x,
             y
         });
-        drawPolygon();
+        drawImage();
         // console.log('mousdown ---- ')
     }
 
@@ -85,6 +90,14 @@ canvas.addEventListener('mousedown', (e) => {
     // if the mouse is close to the polygon, then do nothing
     else {
         selectedPointIndex = findClosestPoint(x, y);
+        // console.log('x: ' + x + ' y: ' + y);
+        //
+        // if selectedPointIndex not equal to -1, then print the selected point
+        // if (selectedPointIndex !== -1) {
+        //     console.log('points[selectedPointIndex].x: ' + points[selectedPointIndex].x + ' points[selectedPointIndex].y: ' + points[selectedPointIndex].y);
+        // }
+
+		console.log('x: ' + x + ' y: ' + y);
     }
 });
 
@@ -98,7 +111,7 @@ canvas.addEventListener('click', (e) => {
         const closestIndex = findClosestPoint(x, y);
         if (closestIndex !== -1) {
             points.splice(closestIndex, 1); // Remove the selected point
-            drawPolygon(); // Redraw the polygon without the removed point
+            drawImage(); // Redraw the polygon without the removed point
         }
     }
 });
@@ -130,8 +143,12 @@ canvas.addEventListener('mousemove', (e) => {
         // Update the position of the selected point
         points[selectedPointIndex].x = e.clientX - canvas.getBoundingClientRect().left;
         points[selectedPointIndex].y = e.clientY - canvas.getBoundingClientRect().top;
+
+		// absoulte position
+		points[selectedPointIndex].x = points[selectedPointIndex].x / scale;
+		points[selectedPointIndex].y = points[selectedPointIndex].y / scale;
         console.log('selectedPointIndex: ' + selectedPointIndex);
-        drawPolygon();
+        drawImage();
     }
 });
 
@@ -139,7 +156,7 @@ canvas.addEventListener('mouseup', () => {
     if (isEditing) {
         isEditing = false;
         selectedPointIndex = -1;
-        drawPolygon();
+        drawImage();
     }
 });
 
@@ -157,7 +174,7 @@ document.addEventListener('keydown', (e) => {
         // if listen to shortcut key 'n', then finish the annotation
         if (e.keyCode === 78) {
             isDrawing = false;
-            drawPolygon();
+            drawImage();
             canvas.style.cursor = 'auto';
             console.log('n ---- ');
             return;
@@ -171,8 +188,9 @@ document.addEventListener('keydown', (e) => {
         if (isDrawing) {
             isDrawing = false;
             points = [];
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.drawImage(image, 0, 0);
+            drawImage();
+            // ctx.clearRect(0, 0, canvas.width, canvas.height);
+            // ctx.drawImage(image, 0, 0);
         }
         canvas.style.cursor = 'auto';
         return;
@@ -183,8 +201,9 @@ document.addEventListener('keydown', (e) => {
         console.log('c ---- ');
         isDrawing = false;
         points = [];
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.drawImage(image, 0, 0);
+        drawImage();
+        // ctx.clearRect(0, 0, canvas.width, canvas.height);
+        // ctx.drawImage(image, 0, 0);
         return;
     }
 
@@ -192,8 +211,9 @@ document.addEventListener('keydown', (e) => {
     if (e.keyCode === 83) {
         isDrawing = true;
         points = [];
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.drawImage(image, 0, 0);
+        drawImage();
+        // ctx.clearRect(0, 0, canvas.width, canvas.height);
+        // ctx.drawImage(image, 0, 0);
         canvas.style.cursor = 'crosshair'; // Set crosshair cursor when drawing starts
         return;
     }
@@ -205,15 +225,23 @@ document.addEventListener('keydown', (e) => {
 
 // show the annotation polygon borders and points on the image
 function drawPolygon() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.drawImage(image, 0, 0);
+    // ctx.clearRect(0, 0, canvas.width, canvas.height);
+    // drawImage();
+    // ctx.drawImage(image, 0, 0);
     if (points.length < 2)
         return;
     ctx.beginPath();
-    ctx.moveTo(points[0].x, points[0].y);
 
-    for (let i = 1; i < points.length; i++) {
-        ctx.lineTo(points[i].x, points[i].y);
+    draw_x = points[0].x * scale;
+    draw_y = points[0].y * scale;
+    // ctx.moveTo(points[0].x, points[0].y);
+    ctx.moveTo(draw_x, draw_y);
+
+    for (let i = 0; i < points.length; i++) {
+        draw_x = points[i].x * scale;
+        draw_y = points[i].y * scale;
+        // ctx.lineTo(points[i].x, points[i].y);
+        ctx.lineTo(draw_x, draw_y);
     }
     ctx.closePath();
     ctx.strokeStyle = 'red';
@@ -225,7 +253,10 @@ function drawPolygon() {
 
     for (let i = 0; i < points.length; i++) {
         ctx.beginPath();
-        ctx.arc(points[i].x, points[i].y, 3, 0, 2 * Math.PI);
+        draw_x = points[i].x * scale;
+        draw_y = points[i].y * scale;
+        // ctx.arc(points[i].x, points[i].y, 3, 0, 2 * Math.PI);
+        ctx.arc(draw_x, draw_y, 3, 0, 2 * Math.PI);
         ctx.closePath();
         ctx.fillStyle = 'red';
         ctx.fill();
@@ -236,7 +267,10 @@ function drawPolygon() {
         ctx.fillStyle = 'blue';
         for (let i = 0; i < points.length; i++) {
             ctx.beginPath();
-            ctx.arc(points[i].x, points[i].y, 3, 0, Math.PI * 2);
+            draw_x = points[i].x * scale;
+            draw_y = points[i].y * scale;
+            // ctx.arc(points[i].x, points[i].y, 3, 0, 2 * Math.PI);
+            ctx.arc(draw_x, draw_y, 3, 0, 2 * Math.PI);
             ctx.fill();
         }
     }
@@ -244,7 +278,10 @@ function drawPolygon() {
 // Function to draw the image on the canvas
 function drawImage() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.drawImage(image, 0, 0, canvas.width * scale, canvas.height * scale);
+    ctx.fillStyle = canvasBackground;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(image, 0, 0, image.width * scale, image.height * scale);
+    drawPolygon();
 }
 
 // canvas.addEventListener('mousemove', (e) => {
@@ -303,5 +340,3 @@ canvas.addEventListener('wheel', (e) => {
     // Redraw the image at the new scale
     drawImage();
 });
-
-
