@@ -1,0 +1,35 @@
+<!-- readImage.html -->
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}
+	Image annotation
+
+{% endblock title %}
+
+{% block content %}
+	<body> <h2>Image annotation</h2>
+		<div style="display:none">
+			<img src="data:image/png;base64,{{ data }}" id="annotatableImage" >
+		</div>
+
+			<canvas id="annotationCanvas"></canvas>
+			<br>
+			<br>
+			<br>
+			<button id="startAnnotation">Start Annotation</button>
+			<button id="clearAnnotation">Clear Annotation</button>
+			<button id="saveAnnotation" onclick="saveAnnotation()">Save Annotation</button>
+			<script src="{%static 'annotate/js/script.js' %}"></script>
+
+
+	</body>
+
+	<div id="contextMenu" style="position: absolute; display: none;">
+		<ul>
+			<li id="deletePoint">Delete Point</li>
+			<!-- Add more options as needed -->
+		</ul>
+	</div>
+
+{% endblock content %}
