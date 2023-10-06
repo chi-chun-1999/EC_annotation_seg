@@ -1,35 +1,51 @@
 <!-- readImage.html -->
 {% extends "base.html" %}
 {% load static %}
-
 {% block title %}
-	Image annotation
-
+    Image annotation
 {% endblock title %}
-
 {% block content %}
-	<body> <h2>Image annotation</h2>
-		<div style="display:none">
-			<img src="data:image/png;base64,{{ data }}" id="annotatableImage" >
-		</div>
-
-			<canvas id="annotationCanvas" width="800" height="450"></canvas>
-			<br>
-			<br>
-			<br>
-			<button id="startAnnotation">Start Annotation</button>
-			<button id="clearAnnotation">Clear Annotation</button>
-			<button id="saveAnnotation" onclick="saveAnnotation()">Save Annotation</button>
-			<script src="{%static 'annotate/js/script.js' %}"></script>
-
-
-	</body>
-
-	<div id="contextMenu" style="position: absolute; display: none;">
-		<ul>
-			<li id="deletePoint">Delete Point</li>
-			<!-- Add more options as needed -->
-		</ul>
-	</div>
-
+    <link rel="stylesheet"
+          href="{% static 'annotate/css/annotate.css' %}"
+          type="text/css"
+          media="all">
+    <body>
+        <h2>Image annotation</h2>
+        <div style="display:none">
+            <img src="data:image/png;base64,{{ data }}" id="annotatableImage">
+        </div>
+        <table>
+            <tr>
+                <td>
+                    <canvas id="annotationCanvas" width="800" height="450"></canvas>
+                </td>
+                <td>
+                    <legend>分割資訊</legend>
+					<div id="checkboxContainer"></div>
+                </td>
+            </tr>
+        </table>
+        <br>
+        <br>
+        <br>
+        <button id="startAnnotation">Start Annotation</button>
+        <button id="clearAnnotation">Clear Annotation</button>
+        <button id="saveAnnotation">Save Annotation</button>
+        <button id="getAnnotationFromUNet">Get Annotation From UNet</button>
+    </body>
+    <div id="contextMenu" style="position: absolute; display: none;">
+        <ul>
+            <li id="deletePoint">Delete Point</li>
+            <!-- Add more options as needed -->
+        </ul>
+    </div>
+    <select id='polygonArea'>
+        <option value="LAM" selected>左心房心肌</option>
+        <option value="LA">左心房</option>
+        <option value="LVM">左心室心肌</option>
+        <option value="LV">左心室</option>
+    </select>
+    <fieldset>
+    </fieldset>
+    <script src="{%static 'annotate/js/script.js' %}"></script>
 {% endblock content %}

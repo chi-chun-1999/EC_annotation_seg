@@ -2,9 +2,11 @@
 const canvas = document.getElementById('annotationCanvas');
 const ctx = canvas.getContext('2d');
 const image = document.getElementById('annotatableImage');
+const selectPolygonArea = document.getElementById('polygonArea');
 const scaleFactor = 1.05; // Adjust the scale factor as needed
 
 window.onload = initCanvas;
+
 
 
 let isDrawing = false;
@@ -13,53 +15,114 @@ let isEditing = false;
 let scale = 1;
 let canvasBackground = 'rgb(225, 225, 225)';
 
-function initCanvas() {
-    console.log('image.width: ' + image.width);
-    console.log('image.height: ' + image.height);
-    console.log('canvas.width: ' + canvas.width);
-    console.log('canvas.height: ' + canvas.height);
-    // canvas.width = image.width;
-    // canvas.height = image.height;
-    ctx.fillStyle = canvasBackground;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.drawImage(image, 0, 0);
+let polygonAreaPoints = {
+    'LAM': [],
+    'LA': [],
+    'LVM': [],
+    'LV': [],
 }
 
+let polygonAreaColor = {
+    'LAM': 'rgb(255, 0, 0)',
+    'LA': 'rgb(0, 255, 0)',
+    'LVM': 'rgb(0, 0, 255)',
+    'LV': 'rgb(255, 255, 0)',
+}
+
+let targetArea = '';
+
+let offsetX = 0;
+let offsetY = 0;
+let isDragging = false;
+let lastMouseX = 0;
+let lastMouseY = 0;
+let imgTopX = 0;
+let imgTopY = 0;
+
+
+// set the annotation line color, point color, fill color and edit point color
+let linecolor = 'rgb(255,125,225)';
+let pointcolor = 'rgb(255,125,225)';
+let fillcolor = 'rgba(255, 0, 0, 0.5)';
+let editpointcolor = 'black';
+
+
+function initCanvas() {
+    // console.log('image.width: ' + image.width);
+    let area = selectPolygonArea.value;
+    // console.log('area: ' + area);
+    // console.log('image.height: ' + image.height);
+    // console.log('canvas.width: ' + canvas.width);
+    // console.log('canvas.height: ' + canvas.height);
+    // canvas.width = image.width;
+    // canvas.height = image.height;
+    // ctx.fillStyle = canvasBackground;
+    // ctx.fillRect(0, 0, canvas.width, canvas.height);
+    // ctx.drawImage(image, 0, 0);
+    drawImage();
+}
+
+selectPolygonArea.addEventListener('change', choosePolygonArea);
+
+function choosePolygonArea() {
+    let area = selectPolygonArea.value;
+    console.log('area: ' + area);
+
+}
+
+
+
+
 // Function to start annotation
-document.getElementById('startAnnotation').addEventListener('click', () => {
-    isDrawing = true;
-    isEditing = false;
-    points = [];
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.drawImage(image, 0, 0);
-    canvas.style.cursor = 'crosshair'; // Set crosshair cursor when drawing starts
-});
+// document.getElementById('startAnnotation').addEventListener('click', () => {
+//     isDrawing = true;
+//     isEditing = false;
+//     points = [];
+//     // ctx.clearRect(0, 0, canvas.width, canvas.height);
+//     // ctx.drawImage(image, 0, 0);
+//     drawImage();
+//     canvas.style.cursor = 'crosshair'; // Set crosshair cursor when drawing starts
+// });
+
+document.getElementById('startAnnotation').addEventListener('click', startAnnotation);
+
+document.addEventListener('keydown', keydownDectect);
+
 
 // Function to clear the annotation
-document.getElementById('clearAnnotation').addEventListener('click', () => {
-    isDrawing = false;
-    isEditing = false;
-    points = [];
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.drawImage(image, 0, 0);
-    canvas.style.cursor = 'auto';
-});
+document.getElementById('clearAnnotation').addEventListener('click', clearAnnotation);
 
 // Function to save the annotation (you can implement your save logic here)
-document.getElementById('saveAnnotation').addEventListener('click', () => {
-    isDrawing = false;
-    // Save the 'points' array or send it to your server for storage
-});
+document.getElementById('saveAnnotation').addEventListener('click', saveAnnotation);
+
+document.getElementById('getAnnotationFromUNet').addEventListener('click', getAnnotationFromUNet)
 
 
 // Event listeners for mouse actions
+// Edit the annotation points
 canvas.addEventListener('mousedown', (e) => {
-    let x = e.clientX - canvas.getBoundingClientRect().left;
-    let y = e.clientY - canvas.getBoundingClientRect().top;
+    let canvas_x = e.clientX - canvas.getBoundingClientRect().left;
+    let canvas_y = e.clientY - canvas.getBoundingClientRect().top;
+
     // absoulte position
-    x = x / scale;
-    y = y / scale;
+    x = (canvas_x - imgTopX) / scale;
+    y = (canvas_y - imgTopY) / scale;
+
+    // absolute position on the image
+    // absolute_x_img = x - imgTopX;
+    // absolute_y_img = y - imgTopY;
+    absolute_x_img = x;
+    absolute_y_img = y;
+
+    if (e.button === 1) {
+        isDragging = true;
+        lastMouseX = e.clientX;
+        lastMouseY = e.clientY;
+    }
+
     if (isDrawing) {
+        // console.log('absolute_x_img: ' + absolute_x_img + ' absolute_y_img: ' + absolute_y_img);
+        // console.log('x: ' + x + ' y: ' + y);
 
         // if listen to shortcut key 'n', then finish the annotation
         if (e.keyCode === 78) {
@@ -74,10 +137,9 @@ canvas.addEventListener('mousedown', (e) => {
             return;
         }
 
-
         points.push({
-            x,
-            y
+            x: absolute_x_img,
+            y: absolute_y_img
         });
         drawImage();
         // console.log('mousdown ---- ')
@@ -89,7 +151,30 @@ canvas.addEventListener('mousedown', (e) => {
     // if the mouse is close to the first point, then finish the annotation
     // if the mouse is close to the polygon, then do nothing
     else {
-        selectedPointIndex = findClosestPoint(x, y);
+
+        if (targetArea != '') {
+            selectedPointIndex = findCloestPointInTargetArea(x, y, polygonAreaPoints[targetArea]);
+            // console.log('selectedPointIndex: ' + selectedPointIndex);
+
+            if (e.altKey && selectedPointIndex != -1) {
+                if (polygonAreaPoints[targetArea].length <= 3) {
+                    selectPointIndex = -1;
+                    isEditing = false;
+                    alert('The polygon area should have at least 3 points!');
+                    return;
+                }
+
+                polygonAreaPoints[targetArea].splice(selectedPointIndex, 1); // Remove the selected point
+                selectedPointIndex = -1;
+                // drawImage(); // Redraw the polygon without the removed point
+            }
+        }
+
+
+        detectMouseInArea(canvas_x, canvas_y, true);
+
+        // selectedPointIndex = findClosestPoint(absolute_x_img, absolute_y_img);
+        drawImage();
         // console.log('x: ' + x + ' y: ' + y);
         //
         // if selectedPointIndex not equal to -1, then print the selected point
@@ -97,31 +182,60 @@ canvas.addEventListener('mousedown', (e) => {
         //     console.log('points[selectedPointIndex].x: ' + points[selectedPointIndex].x + ' points[selectedPointIndex].y: ' + points[selectedPointIndex].y);
         // }
 
-		console.log('x: ' + x + ' y: ' + y);
+        // console.log('x: ' + x + ' y: ' + y);
     }
 });
 
 // Function to handle the click event
 canvas.addEventListener('click', (e) => {
-    const x = e.clientX - canvas.getBoundingClientRect().left;
-    const y = e.clientY - canvas.getBoundingClientRect().top;
+    let x = e.clientX - canvas.getBoundingClientRect().left;
+    let y = e.clientY - canvas.getBoundingClientRect().top;
 
-    if (e.altKey) {
-        // Check if the "Option" (Alt) key is pressed
-        const closestIndex = findClosestPoint(x, y);
-        if (closestIndex !== -1) {
-            points.splice(closestIndex, 1); // Remove the selected point
-            drawImage(); // Redraw the polygon without the removed point
+    // absoulte position
+    x = (x - imgTopX) / scale;
+    y = (y - imgTopY) / scale;
+
+    // if (e.altKey && targetArea != '') {
+    //     // delete the point
+    //     // Check if the "Option" (Alt) key is pressed
+    //     // const closestIndex = findCloestPointInTargetArea(x, y, polygonAreaPoints[targetArea]);
+    // console.log('.....delete ... selectedPointIndex: ' + selectedPointIndex);
+    //     if (selectedPointIndex !== -1) {
+
+    //         polygonAreaPoints[targetArea].splice(selectedPointIndex, 1); // Remove the selected point
+    // selectedPointIndex = -1;
+
+    //         drawImage(); // Redraw the polygon without the removed point
+
+    //     }
+    // }
+});
+
+function findCloestPointInTargetArea(x, y, area_points) {
+    let closestPointIndex = -1;
+    let closestDistance = 5;
+
+    for (let i = 0; i < area_points.length; i++) {
+        const distance = Math.sqrt(
+            Math.pow(x - area_points[i].x, 2) + Math.pow(y - area_points[i].y, 2)
+        );
+        if (distance < closestDistance) {
+            closestPointIndex = i;
+            closestDistance = distance;
+            isEditing = true;
         }
     }
-});
+    // console.log('closestPointIndex: ' + closestPointIndex);
+
+    return closestPointIndex;
+}
 
 
 
 
 function findClosestPoint(x, y) {
     let closestPointIndex = -1;
-    let closestDistance = 10;
+    let closestDistance = 5;
 
     for (let i = 0; i < points.length; i++) {
         const distance = Math.sqrt(
@@ -141,15 +255,38 @@ canvas.addEventListener('mousemove', (e) => {
     if (isEditing && selectedPointIndex !== -1) {
 
         // Update the position of the selected point
-        points[selectedPointIndex].x = e.clientX - canvas.getBoundingClientRect().left;
-        points[selectedPointIndex].y = e.clientY - canvas.getBoundingClientRect().top;
+        polygonAreaPoints[targetArea][selectedPointIndex].x = e.clientX - canvas.getBoundingClientRect().left;
+        polygonAreaPoints[targetArea][selectedPointIndex].y = e.clientY - canvas.getBoundingClientRect().top;
 
-		// absoulte position
-		points[selectedPointIndex].x = points[selectedPointIndex].x / scale;
-		points[selectedPointIndex].y = points[selectedPointIndex].y / scale;
-        console.log('selectedPointIndex: ' + selectedPointIndex);
+
+        // points[selectedPointIndex].x = e.clientX - canvas.getBoundingClientRect().left;
+        // points[selectedPointIndex].y = e.clientY - canvas.getBoundingClientRect().top;
+
+        // absoulte position
+        polygonAreaPoints[targetArea][selectedPointIndex].x = (polygonAreaPoints[targetArea][selectedPointIndex].x - imgTopX) / scale;
+        polygonAreaPoints[targetArea][selectedPointIndex].y = (polygonAreaPoints[targetArea][selectedPointIndex].y - imgTopY) / scale;
+        // points[selectedPointIndex].x = (points[selectedPointIndex].x - imgTopX) / scale;
+        // points[selectedPointIndex].y = (points[selectedPointIndex].y - imgTopY) / scale;
+        // console.log('selectedPointIndex: ' + selectedPointIndex);
         drawImage();
     }
+    if (isDragging) {
+        const deltaX = e.clientX - lastMouseX;
+        const deltaY = e.clientY - lastMouseY;
+        offsetX += deltaX;
+        offsetY += deltaY;
+        lastMouseX = e.clientX;
+        lastMouseY = e.clientY;
+        drawImage();
+    } else {
+        // find mouse in which area
+        let x = e.clientX - canvas.getBoundingClientRect().left;
+        let y = e.clientY - canvas.getBoundingClientRect().top;
+        detectMouseInArea(x, y);
+        drawImage();
+
+    }
+    // console.log('target' + targetArea);
 });
 
 canvas.addEventListener('mouseup', () => {
@@ -158,6 +295,11 @@ canvas.addEventListener('mouseup', () => {
         selectedPointIndex = -1;
         drawImage();
     }
+
+    if (isDragging) {
+        isDragging = false;
+    }
+
 });
 
 // addEventListener for keyboard actions
@@ -167,16 +309,40 @@ canvas.addEventListener('mouseup', () => {
 //
 // Note: if you want to use shortcut key, you need to click the canvas first
 // to make it focused
+//
+function startAnnotation() {
+    polygonAreaPoints[selectPolygonArea.value] = [];
 
-document.addEventListener('keydown', (e) => {
+    isDrawing = true;
+    isEditing = false;
+    points = [];
+    drawImage();
+    canvas.style.cursor = 'crosshair'; // Set crosshair cursor when drawing starts
+    console.log('startAnnotation ---- ');
+}
+
+function clearAnnotation() {
+    isDrawing = false;
+    isEditing = false;
+    points = [];
+    drawImage();
+    canvas.style.cursor = 'auto';
+    console.log('clearAnnotation ---- ');
+}
+
+
+function keydownDectect(e) {
     if (isDrawing) {
 
         // if listen to shortcut key 'n', then finish the annotation
         if (e.keyCode === 78) {
             isDrawing = false;
+            polygonAreaPoints[selectPolygonArea.value] = points.slice(0);
+            points = [];
             drawImage();
             canvas.style.cursor = 'auto';
             console.log('n ---- ');
+
             return;
         }
     }
@@ -199,105 +365,23 @@ document.addEventListener('keydown', (e) => {
     // if listen to shortcut key 'c', then clear the annotation
     if (e.keyCode === 67) {
         console.log('c ---- ');
-        isDrawing = false;
-        points = [];
-        drawImage();
-        // ctx.clearRect(0, 0, canvas.width, canvas.height);
-        // ctx.drawImage(image, 0, 0);
+        clearAnnotation();
         return;
     }
 
     // if listen to shortcut key 's', then start the annotation
     if (e.keyCode === 83) {
-        isDrawing = true;
-        points = [];
-        drawImage();
-        // ctx.clearRect(0, 0, canvas.width, canvas.height);
-        // ctx.drawImage(image, 0, 0);
-        canvas.style.cursor = 'crosshair'; // Set crosshair cursor when drawing starts
+        startAnnotation();
         return;
     }
-
-});
-
-
-
-
-// show the annotation polygon borders and points on the image
-function drawPolygon() {
-    // ctx.clearRect(0, 0, canvas.width, canvas.height);
-    // drawImage();
-    // ctx.drawImage(image, 0, 0);
-    if (points.length < 2)
-        return;
-    ctx.beginPath();
-
-    draw_x = points[0].x * scale;
-    draw_y = points[0].y * scale;
-    // ctx.moveTo(points[0].x, points[0].y);
-    ctx.moveTo(draw_x, draw_y);
-
-    for (let i = 0; i < points.length; i++) {
-        draw_x = points[i].x * scale;
-        draw_y = points[i].y * scale;
-        // ctx.lineTo(points[i].x, points[i].y);
-        ctx.lineTo(draw_x, draw_y);
-    }
-    ctx.closePath();
-    ctx.strokeStyle = 'red';
-    ctx.lineWidth = 2;
-    // let closepath fill with transparent red color
-    ctx.fillStyle = 'rgba(255, 0, 0, 0.5)';
-    ctx.fill();
-    ctx.stroke();
-
-    for (let i = 0; i < points.length; i++) {
-        ctx.beginPath();
-        draw_x = points[i].x * scale;
-        draw_y = points[i].y * scale;
-        // ctx.arc(points[i].x, points[i].y, 3, 0, 2 * Math.PI);
-        ctx.arc(draw_x, draw_y, 3, 0, 2 * Math.PI);
-        ctx.closePath();
-        ctx.fillStyle = 'red';
-        ctx.fill();
-    }
-
-    // Draw points for editing
-    if (isEditing) {
-        ctx.fillStyle = 'blue';
-        for (let i = 0; i < points.length; i++) {
-            ctx.beginPath();
-            draw_x = points[i].x * scale;
-            draw_y = points[i].y * scale;
-            // ctx.arc(points[i].x, points[i].y, 3, 0, 2 * Math.PI);
-            ctx.arc(draw_x, draw_y, 3, 0, 2 * Math.PI);
-            ctx.fill();
-        }
-    }
 }
-// Function to draw the image on the canvas
-function drawImage() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = canvasBackground;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.drawImage(image, 0, 0, image.width * scale, image.height * scale);
-    drawPolygon();
-}
-
-// canvas.addEventListener('mousemove', (e) => {
-//     if (isEditing && selectedPointIndex !== -1) {
-//         // Update the position of the selected point
-//         points[selectedPointIndex].x = e.clientX - canvas.getBoundingClientRect().left;
-//         points[selectedPointIndex].y = e.clientY - canvas.getBoundingClientRect().top;
-//         drawPolygon();
-//     }
-// });
 
 // save annotation using ajax to django server
 function saveAnnotation() {
+    isDrawing = false;
     // get the annotation points
-    var annotationPoints = JSON.stringify(points);
-    console.log('annotationPoints: ' + annotationPoints);
+    var annotationPoints = JSON.stringify(polygonAreaPoints);
+    // console.log('annotationPoints: ' + annotationPoints);
 
     $.ajax({
         type: "POST",
@@ -315,24 +399,258 @@ function saveAnnotation() {
     });
 }
 
-// Function to save the annotation (you can implement your save logic here)
-document.getElementById('saveAnnotation').addEventListener('click', () => {
-    isDrawing = false;
-    // Save the 'points' array or send it to your server for storage
-    saveAnnotation();
-});
+function detectMouseInArea(x, y, ismousedown = false) {
+
+    // absoulte position
+    x = (x - imgTopX) / scale;
+    y = (y - imgTopY) / scale;
+    let isInside = false;
+
+    if (isEditing == false) {
+        for (let key in polygonAreaPoints) {
+            const vertices = polygonAreaPoints[key];
+            for (let i = 0, j = vertices.length - 1; i < vertices.length; j = i++) {
+                const xi = vertices[i].x,
+                    yi = vertices[i].y;
+                const xj = vertices[j].x,
+                    yj = vertices[j].y;
+
+                const intersect = ((yi > y) != (yj > y)) &&
+                    (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
+                if (intersect) isInside = !isInside;
+            }
+            if (isInside) {
+
+                targetArea = key;
+                break;
+            }
+        }
+        if (isInside == false && ismousedown == true) {
+            targetArea = '';
+        }
+    }
+
+
+
+}
+
+
+// caculate the points position on the image
+function calculateDrawPointsPosition(point) {
+
+    // draw_x = (point.x+imgTopX)*scale;
+    // draw_y = (point.y+imgTopY)*scale;
+    // console.log(point)
+    draw_x = point.x * scale + imgTopX;
+    draw_y = point.y * scale + imgTopY;
+
+
+
+    return {
+        x: draw_x,
+        y: draw_y
+    };
+}
+
+
+// show the annotation polygon borders and points on the image
+function drawPolygon() {
+    if (isDrawing) {
+        if (points.length < 2)
+            return;
+        ctx.beginPath();
+
+        draw_x = (points[0].x + imgTopX) * scale;
+        draw_y = (points[0].y + imgTopY) * scale;
+
+        draw_point = calculateDrawPointsPosition(points[0]);
+
+        // ctx.moveTo(points[0].x, points[0].y);
+        // ctx.moveTo(draw_x, draw_y);
+        ctx.moveTo(draw_point.x, draw_point.y);
+
+        for (let i = 0; i < points.length; i++) {
+            // draw_x = (points[i].x+imgTopX)*scale;
+            // draw_y = (points[i].y+imgTopY)*scale;
+            // ctx.lineTo(points[i].x, points[i].y);
+            // ctx.lineTo(draw_x, draw_y);
+            draw_point = calculateDrawPointsPosition(points[i]);
+            ctx.lineTo(draw_point.x, draw_point.y);
+        }
+        ctx.closePath();
+        ctx.strokeStyle = linecolor;
+        ctx.lineWidth = 2;
+        // let closepath fill with transparent red color
+        ctx.fillStyle = fillcolor;
+        ctx.fill();
+        ctx.stroke();
+
+        for (let i = 0; i < points.length; i++) {
+            ctx.beginPath();
+            // draw_x = (points[i].x+imgTopX)*scale;
+            // draw_y = (points[i].y+imgTopY)*scale;
+            // ctx.arc(points[i].x, points[i].y, 3, 0, 2 * Math.PI);
+            // ctx.arc(draw_x, draw_y, 3, 0, 2 * Math.PI);
+            draw_point = calculateDrawPointsPosition(points[i]);
+            ctx.arc(draw_point.x, draw_point.y, 3, 0, 2 * Math.PI);
+
+            ctx.closePath();
+            ctx.fillStyle = pointcolor;
+            ctx.fill();
+        }
+
+    }
+
+
+    // Draw points for editing
+    if (isEditing) {
+        ctx.fillStyle = editpointcolor;
+
+
+        for (let i = 0; i < points.length; i++) {
+            ctx.beginPath();
+            // draw_x = (points[i].x+imgTopX)*scale;
+            // draw_y = (points[i].y+imgTopY)*scale;
+            // ctx.arc(points[i].x, points[i].y, 3, 0, 2 * Math.PI);
+            // ctx.arc(draw_x, draw_y, 3, 0, 2 * Math.PI);
+            draw_point = calculateDrawPointsPosition(points[i]);
+            ctx.arc(draw_point.x, draw_point.y, 3, 0, 2 * Math.PI);
+            ctx.fill();
+        }
+    }
+}
+
+function drawArea(area_points, color = 'rgb(255, 0, 0)', istarget = false) {
+    if (area_points.length < 2)
+        return;
+    ctx.beginPath();
+
+    draw_x = (area_points[0].x + imgTopX) * scale;
+    draw_y = (area_points[0].y + imgTopY) * scale;
+
+    draw_point = calculateDrawPointsPosition(area_points[0]);
+
+    ctx.moveTo(draw_point.x, draw_point.y);
+
+    for (let i = 0; i < area_points.length; i++) {
+        draw_point = calculateDrawPointsPosition(area_points[i]);
+        ctx.lineTo(draw_point.x, draw_point.y);
+    }
+    ctx.closePath();
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 2;
+    // let closepath fill with transparent red color
+    if (istarget) {
+        transparent_color = color.replace('rgb', 'rgba').replace(')', ', 0.5)');
+        ctx.fillStyle = transparent_color;
+        ctx.fill();
+    }
+    ctx.stroke();
+
+    if (istarget) {
+        // let color become transparent
+        // Draw area_points for editing
+        if (isEditing) {
+            ctx.fillStyle = editpointcolor;
+            ctx.beginPath();
+
+            if (selectedPointIndex != -1) {
+                draw_point = calculateDrawPointsPosition(area_points[selectedPointIndex])
+            }
+
+            ctx.arc(draw_point.x, draw_point.y, 6, 0, 5 * Math.PI);
+            ctx.fill();
+        }
+
+        for (let i = 0; i < area_points.length; i++) {
+            ctx.beginPath();
+            draw_point = calculateDrawPointsPosition(area_points[i]);
+            ctx.arc(draw_point.x, draw_point.y, 3, 0, 2 * Math.PI);
+
+            ctx.closePath();
+            ctx.fillStyle = color;
+            ctx.fill();
+        }
+
+
+    }
+}
+
+
+// Function to draw the image on the canvas
+function drawImage() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = canvasBackground;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Calculate the scaled image size
+    const scaleWidth = image.width * scale;
+    const scaleHeight = image.height * scale;
+
+    // Calculate the position to center the image on the canvas
+    const centerX = canvas.width / 2;
+    const centerY = canvas.height / 2;
+
+    // calculate the top-left corner of the image
+    const imageX = centerX - scaleWidth / 2 + offsetX;
+    const imageY = centerY - scaleHeight / 2 + offsetY;
+
+    imgTopX = imageX;
+    imgTopY = imageY;
+    // console.log('imageX: ' + imageX + ' imageY: ' + imageY);
+
+    ctx.drawImage(image, imageX, imageY, scaleWidth, scaleHeight);
+
+    // ctx.drawImage(image, 0, 0, image.width * scale, image.height * scale);
+    drawPolygon();
+
+    for (let key in polygonAreaPoints) {
+        let isTarget = false;
+
+        if (key === targetArea) {
+            isTarget = true;
+        }
+        drawArea(polygonAreaPoints[key], polygonAreaColor[key], isTarget);
+    }
+}
+
+// canvas.addEventListener('mousemove', (e) => {
+//     if (isEditing && selectedPointIndex !== -1) {
+//         // Update the position of the selected point
+//         points[selectedPointIndex].x = e.clientX - canvas.getBoundingClientRect().left;
+//         points[selectedPointIndex].y = e.clientY - canvas.getBoundingClientRect().top;
+//         drawPolygon();
+//     }
+// });
+
 
 
 // Event listener for mouse wheel scrolling
 canvas.addEventListener('wheel', (e) => {
     e.preventDefault();
 
-    // Adjust the scale factor based on the scroll direction
+    //     // Adjust the scale factor based on the scroll direction
     if (e.deltaY < 0) {
         scale *= scaleFactor; // Zoom in
     } else {
         scale /= scaleFactor; // Zoom out
     }
+
+    // Get the current mouse position relative to the canvas
+    // const mouseX = e.clientX - canvas.getBoundingClientRect().left;
+    // const mouseY = e.clientY - canvas.getBoundingClientRect().top;
+
+    // Calculate the zoom factor based on the scroll direction
+    // const zoomFactor = e.deltaY > 0 ? 0.9 : 1.1;
+
+    // // Update the scale and offset values
+    // scale *= zoomFactor;
+
+    // // Calculate the new offset values to keep the mouse position fixed
+    // offsetX = mouseX - (mouseX - offsetX) * zoomFactor;
+    // offsetY = mouseY - (mouseY - offsetY) * zoomFactor;
+    // console.log('offsetX: ' + offsetX + ' offsetY: ' + offsetY);
+
 
     // Limit the minimum and maximum scale values (adjust as needed)
     scale = Math.min(Math.max(scale, 0.1), 3.0);
@@ -340,3 +658,40 @@ canvas.addEventListener('wheel', (e) => {
     // Redraw the image at the new scale
     drawImage();
 });
+
+function getAnnotationFromUNet() {
+    console.log('getAnnotationFromUNet');
+    // get response from django server
+    let response = $.ajax({
+        type: "GET",
+        url: "/getAnnotationFromUNet/",
+        data: {
+            'csrfmiddlewaretoken': '{{ csrf_token }}'
+        },
+        success: function(response) {
+            // alert(response);
+            // console.log(response['la_polygon_points']);
+            tmp = []
+            for (let key in response['la_polygon_points']) {
+                tmp.push({
+                    x: response['la_polygon_points'][key][0],
+                    y: response['la_polygon_points'][key][1]
+                })
+            }
+            polygonAreaPoints['LA'] = tmp;
+
+            tmp = []
+            for (let key in response['lv_polygon_points']) {
+                tmp.push({
+                    x: response['lv_polygon_points'][key][0],
+                    y: response['lv_polygon_points'][key][1]
+                })
+            }
+            polygonAreaPoints['LV'] = tmp;
+            drawImage();
+        },
+        error: function(response) {
+            // alert(response);
+        }
+    })
+}

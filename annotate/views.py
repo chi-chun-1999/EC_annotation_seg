@@ -6,6 +6,8 @@ import io
 import base64
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+import numpy as np
+from imantics import Polygons, Mask
 
 
 # Create your views here.
@@ -50,6 +52,34 @@ def readImage(request):
     data = base64.b64encode(ioBuffer.getvalue()).decode('utf-8')
 
     return render(request, 'annotate/readImage.html',locals())
+
+@csrf_exempt
+def getAnnotationFromUNet(request):
+
+    if request.method == 'GET':
+        try:
+            annotate = np.load('annotate/statics/kmu_a4c_A41HII82_frame2_mask.npy')
+
+
+            annotate_polygons_lv = Mask(annotate==1).polygons()
+            annotate_polygons_la = Mask(annotate==3).polygons()    
+
+            tmp = [len(i) for i in annotate_polygons_la.points]
+            la_polygon_points = annotate_polygons_la.points[tmp.index(max(tmp))]
+            tmp = [len(i) for i in annotate_polygons_lv.points]
+            lv_polygon_points = annotate_polygons_lv.points[tmp.index(max(tmp))]
+            
+            return JsonResponse({'la_polygon_points':la_polygon_points.tolist(),'lv_polygon_points':lv_polygon_points.tolist(),'success':True})
+        except Exception as e:
+            return JsonResponse({'error':str(e)})
+    else:
+        return JsonResponse({'error':'Invalid Request'})
+    
+    
+    # return JsonResponse({'annotation':annotate.tolist()})
+
+
+
 
 @csrf_exempt
 def saveAnnotation(request):
