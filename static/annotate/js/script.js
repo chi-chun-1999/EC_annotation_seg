@@ -15,11 +15,33 @@ let isEditing = false;
 let scale = 1;
 let canvasBackground = 'rgb(225, 225, 225)';
 
-let polygonAreaPoints = {
-    'LAM': [],
-    'LA': [],
-    'LVM': [],
-    'LV': [],
+let view = '';
+
+let _polygonAreaPoints = {
+    'LAM': {
+        points: [],
+        color: 'rgb(255, 0, 0)',
+        checkbox: false,
+        namel: '左心房心肌'
+    },
+    'LA': {
+        points: [],
+        color: 'rgb(0, 255, 0)',
+        checkbox: false,
+        name: '左心房'
+    },
+    'LVM': {
+        points: [],
+        color: 'rgb(0, 0, 255)',
+        checkbox: false,
+        name: '左心室心肌'
+    },
+    'LV': {
+        points: [],
+        color: 'rgb(255, 255, 0)',
+        checkbox: false,
+        name: '左心室'
+    },
 }
 
 let polygonAreaColor = {
@@ -97,6 +119,15 @@ document.getElementById('saveAnnotation').addEventListener('click', saveAnnotati
 
 document.getElementById('getAnnotationFromUNet').addEventListener('click', getAnnotationFromUNet)
 
+// Function to delete the annotation
+document.getElementById('btn_delete_LV').addEventListener('click', deleteAnnotationArea('LV'));
+document.getElementById('btn_delete_LA').addEventListener('click', deleteAnnotationArea('LA'));
+document.getElementById('btn_delete_LVM').addEventListener('click', deleteAnnotationArea('LVM'));
+document.getElementById('btn_delete_LAM').addEventListener('click', deleteAnnotationArea('LAM'));
+
+// Function to change the view
+document.getElementById('text_view').addEventListener('change', viewChange);
+
 
 // Event listeners for mouse actions
 // Edit the annotation points
@@ -152,19 +183,20 @@ canvas.addEventListener('mousedown', (e) => {
     // if the mouse is close to the polygon, then do nothing
     else {
 
-        if (targetArea != '') {
-            selectedPointIndex = findCloestPointInTargetArea(x, y, polygonAreaPoints[targetArea]);
+        if (targetArea != '' && _polygonAreaPoints[targetArea].checkbox == true) {
+            selectedPointIndex = findCloestPointInTargetArea(x, y, _polygonAreaPoints[targetArea].points);
             // console.log('selectedPointIndex: ' + selectedPointIndex);
 
+            // delete the point
             if (e.altKey && selectedPointIndex != -1) {
-                if (polygonAreaPoints[targetArea].length <= 3) {
+                if (_polygonAreaPoints[targetArea].points.length <= 3) {
                     selectPointIndex = -1;
                     isEditing = false;
                     alert('The polygon area should have at least 3 points!');
                     return;
                 }
 
-                polygonAreaPoints[targetArea].splice(selectedPointIndex, 1); // Remove the selected point
+                _polygonAreaPoints[targetArea].points.splice(selectedPointIndex, 1); // Remove the selected point
                 selectedPointIndex = -1;
                 // drawImage(); // Redraw the polygon without the removed point
             }
@@ -255,16 +287,16 @@ canvas.addEventListener('mousemove', (e) => {
     if (isEditing && selectedPointIndex !== -1) {
 
         // Update the position of the selected point
-        polygonAreaPoints[targetArea][selectedPointIndex].x = e.clientX - canvas.getBoundingClientRect().left;
-        polygonAreaPoints[targetArea][selectedPointIndex].y = e.clientY - canvas.getBoundingClientRect().top;
+        _polygonAreaPoints[targetArea].points[selectedPointIndex].x = e.clientX - canvas.getBoundingClientRect().left;
+        _polygonAreaPoints[targetArea].points[selectedPointIndex].y = e.clientY - canvas.getBoundingClientRect().top;
 
 
         // points[selectedPointIndex].x = e.clientX - canvas.getBoundingClientRect().left;
         // points[selectedPointIndex].y = e.clientY - canvas.getBoundingClientRect().top;
 
         // absoulte position
-        polygonAreaPoints[targetArea][selectedPointIndex].x = (polygonAreaPoints[targetArea][selectedPointIndex].x - imgTopX) / scale;
-        polygonAreaPoints[targetArea][selectedPointIndex].y = (polygonAreaPoints[targetArea][selectedPointIndex].y - imgTopY) / scale;
+        _polygonAreaPoints[targetArea].points[selectedPointIndex].x = (_polygonAreaPoints[targetArea].points[selectedPointIndex].x - imgTopX) / scale;
+        _polygonAreaPoints[targetArea].points[selectedPointIndex].y = (_polygonAreaPoints[targetArea].points[selectedPointIndex].y - imgTopY) / scale;
         // points[selectedPointIndex].x = (points[selectedPointIndex].x - imgTopX) / scale;
         // points[selectedPointIndex].y = (points[selectedPointIndex].y - imgTopY) / scale;
         // console.log('selectedPointIndex: ' + selectedPointIndex);
@@ -302,6 +334,50 @@ canvas.addEventListener('mouseup', () => {
 
 });
 
+
+function deleteAnnotationArea(area) {
+    return function() {
+        console.log('deleteAnnotationArea: ' + area);
+        _polygonAreaPoints[area].points = [];
+        _polygonAreaPoints[area].checkbox = false;
+		document.getElementById('div_checkbox_' + area).style.display = 'none';
+        drawImage();
+    }
+}
+
+function viewChange() {
+
+	view = document.getElementById('text_view').value;
+	console.log('view: ' + view);
+
+}
+
+document.getElementById('btn_post_image').addEventListener('click', testPostImage);
+
+function testPostImage() {
+	console.log('testPostImage');
+	// var imageDataURL = image.toDataURL('image/png');
+
+	data = {
+		// 'csrfmiddlewaretoken': '{{ csrf_token }}',
+		'img': image.src,
+		'view': view
+	}
+
+	$.ajax({
+		type: "POST",
+		url: "http://192.168.195.98:8080/CAMUSegmentation",
+		data: JSON.stringify(data),
+		headers: { 'Content-Type': 'application/json' },
+		success: function(response) {
+			// alert(response);
+			console.log(response);
+		}
+	})
+}
+
+
+
 // addEventListener for keyboard actions
 // if listen to shortcut key 'n', then finish the annotation
 // if listen to shortcut key 'c', then clear the annotation
@@ -311,7 +387,7 @@ canvas.addEventListener('mouseup', () => {
 // to make it focused
 //
 function startAnnotation() {
-    polygonAreaPoints[selectPolygonArea.value] = [];
+    _polygonAreaPoints[selectPolygonArea.value].points = [];
 
     isDrawing = true;
     isEditing = false;
@@ -325,6 +401,11 @@ function clearAnnotation() {
     isDrawing = false;
     isEditing = false;
     points = [];
+    for (let key in _polygonAreaPoints) {
+        _polygonAreaPoints[key].points = [];
+        _polygonAreaPoints[key].checkbox = false;
+    }
+
     drawImage();
     canvas.style.cursor = 'auto';
     console.log('clearAnnotation ---- ');
@@ -337,7 +418,9 @@ function keydownDectect(e) {
         // if listen to shortcut key 'n', then finish the annotation
         if (e.keyCode === 78) {
             isDrawing = false;
-            polygonAreaPoints[selectPolygonArea.value] = points.slice(0);
+            _polygonAreaPoints[selectPolygonArea.value].points = points.slice(0);
+            _polygonAreaPoints[selectPolygonArea.value].checkbox = true;
+
             points = [];
             drawImage();
             canvas.style.cursor = 'auto';
@@ -380,7 +463,7 @@ function keydownDectect(e) {
 function saveAnnotation() {
     isDrawing = false;
     // get the annotation points
-    var annotationPoints = JSON.stringify(polygonAreaPoints);
+    var annotationPoints = JSON.stringify(_polygonAreaPoints);
     // console.log('annotationPoints: ' + annotationPoints);
 
     $.ajax({
@@ -407,8 +490,8 @@ function detectMouseInArea(x, y, ismousedown = false) {
     let isInside = false;
 
     if (isEditing == false) {
-        for (let key in polygonAreaPoints) {
-            const vertices = polygonAreaPoints[key];
+        for (let key in _polygonAreaPoints) {
+            const vertices = _polygonAreaPoints[key].points;
             for (let i = 0, j = vertices.length - 1; i < vertices.length; j = i++) {
                 const xi = vertices[i].x,
                     yi = vertices[i].y;
@@ -429,8 +512,6 @@ function detectMouseInArea(x, y, ismousedown = false) {
             targetArea = '';
         }
     }
-
-
 
 }
 
@@ -454,7 +535,7 @@ function calculateDrawPointsPosition(point) {
 
 
 // show the annotation polygon borders and points on the image
-function drawPolygon() {
+function drawNewPolygon() {
     if (isDrawing) {
         if (points.length < 2)
             return;
@@ -556,10 +637,9 @@ function drawArea(area_points, color = 'rgb(255, 0, 0)', istarget = false) {
 
             if (selectedPointIndex != -1) {
                 draw_point = calculateDrawPointsPosition(area_points[selectedPointIndex])
+                ctx.arc(draw_point.x, draw_point.y, 6, 0, 5 * Math.PI);
+                ctx.fill();
             }
-
-            ctx.arc(draw_point.x, draw_point.y, 6, 0, 5 * Math.PI);
-            ctx.fill();
         }
 
         for (let i = 0; i < area_points.length; i++) {
@@ -575,6 +655,18 @@ function drawArea(area_points, color = 'rgb(255, 0, 0)', istarget = false) {
 
     }
 }
+
+function showCurrentAnnotationCheckbox(key) {
+    let container = document.getElementById('annotationCheckbox');
+
+    if (_polygonAreaPoints[key].points.length != 0) {
+        document.getElementById('div_checkbox_' + key).style.display = '';
+        document.getElementById('checkbox_' + key).checked = _polygonAreaPoints[key].checkbox;
+    }
+
+}
+
+
 
 
 // Function to draw the image on the canvas
@@ -602,26 +694,58 @@ function drawImage() {
     ctx.drawImage(image, imageX, imageY, scaleWidth, scaleHeight);
 
     // ctx.drawImage(image, 0, 0, image.width * scale, image.height * scale);
-    drawPolygon();
+    drawNewPolygon();
 
-    for (let key in polygonAreaPoints) {
+    for (let key in _polygonAreaPoints) {
         let isTarget = false;
 
         if (key === targetArea) {
             isTarget = true;
         }
-        drawArea(polygonAreaPoints[key], polygonAreaColor[key], isTarget);
+        if (_polygonAreaPoints[key].checkbox != false) {
+            drawArea(_polygonAreaPoints[key].points, _polygonAreaPoints[key].color, isTarget);
+            showCurrentAnnotationCheckbox(key);
+        }
     }
 }
 
-// canvas.addEventListener('mousemove', (e) => {
-//     if (isEditing && selectedPointIndex !== -1) {
-//         // Update the position of the selected point
-//         points[selectedPointIndex].x = e.clientX - canvas.getBoundingClientRect().left;
-//         points[selectedPointIndex].y = e.clientY - canvas.getBoundingClientRect().top;
-//         drawPolygon();
-//     }
-// });
+document.getElementById('checkbox_LA').addEventListener('change', function() {
+    if (this.checked) {
+        _polygonAreaPoints['LA'].checkbox = true;
+    } else {
+        _polygonAreaPoints['LA'].checkbox = false;
+    }
+    drawImage();
+});
+
+document.getElementById('checkbox_LV').addEventListener('change', function() {
+    if (this.checked) {
+        _polygonAreaPoints['LV'].checkbox = true;
+    } else {
+        _polygonAreaPoints['LV'].checkbox = false;
+    }
+    drawImage();
+});
+
+document.getElementById('checkbox_LAM').addEventListener('change', function() {
+    if (this.checked) {
+        _polygonAreaPoints['LAM'].checkbox = true;
+    } else {
+        _polygonAreaPoints['LAM'].checkbox = false;
+    }
+    drawImage();
+});
+
+document.getElementById('checkbox_LVM').addEventListener('change', function() {
+    if (this.checked) {
+        _polygonAreaPoints['LVM'].checkbox = true;
+    } else {
+        _polygonAreaPoints['LVM'].checkbox = false;
+    }
+    drawImage();
+});
+
+
 
 
 
@@ -636,24 +760,8 @@ canvas.addEventListener('wheel', (e) => {
         scale /= scaleFactor; // Zoom out
     }
 
-    // Get the current mouse position relative to the canvas
-    // const mouseX = e.clientX - canvas.getBoundingClientRect().left;
-    // const mouseY = e.clientY - canvas.getBoundingClientRect().top;
-
-    // Calculate the zoom factor based on the scroll direction
-    // const zoomFactor = e.deltaY > 0 ? 0.9 : 1.1;
-
-    // // Update the scale and offset values
-    // scale *= zoomFactor;
-
-    // // Calculate the new offset values to keep the mouse position fixed
-    // offsetX = mouseX - (mouseX - offsetX) * zoomFactor;
-    // offsetY = mouseY - (mouseY - offsetY) * zoomFactor;
-    // console.log('offsetX: ' + offsetX + ' offsetY: ' + offsetY);
-
-
     // Limit the minimum and maximum scale values (adjust as needed)
-    scale = Math.min(Math.max(scale, 0.1), 3.0);
+    scale = Math.min(Math.max(scale, 0.1), 10.0);
 
     // Redraw the image at the new scale
     drawImage();
@@ -661,6 +769,7 @@ canvas.addEventListener('wheel', (e) => {
 
 function getAnnotationFromUNet() {
     console.log('getAnnotationFromUNet');
+	
     // get response from django server
     let response = $.ajax({
         type: "GET",
@@ -678,7 +787,8 @@ function getAnnotationFromUNet() {
                     y: response['la_polygon_points'][key][1]
                 })
             }
-            polygonAreaPoints['LA'] = tmp;
+            _polygonAreaPoints['LA'].points = tmp;
+            _polygonAreaPoints['LA'].checkbox = true;
 
             tmp = []
             for (let key in response['lv_polygon_points']) {
@@ -687,7 +797,8 @@ function getAnnotationFromUNet() {
                     y: response['lv_polygon_points'][key][1]
                 })
             }
-            polygonAreaPoints['LV'] = tmp;
+            _polygonAreaPoints['LV'].points = tmp;
+            _polygonAreaPoints['LV'].checkbox = true;
             drawImage();
         },
         error: function(response) {

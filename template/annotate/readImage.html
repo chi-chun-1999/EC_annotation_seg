@@ -10,28 +10,70 @@
           type="text/css"
           media="all">
     <body>
-        <h2>Image annotation</h2>
         <div style="display:none">
             <img src="data:image/png;base64,{{ data }}" id="annotatableImage">
         </div>
-        <table>
-            <tr>
-                <td>
+        <div class="container">
+            <h2 class="center">Image annotation</h2>
+            <div class="row">
+                <div class="col-2 border">
+                    <div class="d-grid d-md-block">
+                        <button type="button" class="btn btn-primary" id="startAnnotation">Start Annotation</button>
+                        <br>
+                        <button class="btn btn-primary" id="clearAnnotation">Clear Annotation</button>
+                        <br>
+                        <button class="btn btn-primary" id="saveAnnotation">Save Annotation</button>
+                        <br>
+                        <button class="btn btn-primary" id="getAnnotationFromUNet">Get Annotation From UNet</button>
+                        <br>
+                    </div>
+                    <select class="form-select" id='polygonArea'>
+                        <option value="LAM" selected>左心房心肌</option>
+                        <option value="LA">左心房</option>
+                        <option value="LVM">左心室心肌</option>
+                        <option value="LV">左心室</option>
+                    </select>
+                </div>
+                <div class="col border">
                     <canvas id="annotationCanvas" width="800" height="450"></canvas>
-                </td>
-                <td>
+                </div>
+                <div class="col border">
+
+					<label>View:</label>
+
+					<input type='text' id='text_view' maxlength="10" >
                     <legend>分割資訊</legend>
-					<div id="checkboxContainer"></div>
-                </td>
-            </tr>
-        </table>
+                    <div id="annotationCheckbox"></div>
+                    <div style='display:none' id='div_checkbox_LAM'>
+                        <input type="checkbox" name="LAM" id="checkbox_LAM">
+                        <label for="LAM">左心房心肌</label>
+						<input type="button" id="btn_delete_LAM" value="delete">
+                        <br>
+                    </div>
+                    <div style='display:none' id='div_checkbox_LA'>
+                        <input type="checkbox" name="LA" id="checkbox_LA">
+                        <label for="LA">左心房</label>
+						<input type="button" id="btn_delete_LA" value="delete">
+                        <br>
+                    </div>
+                    <div style='display:none' id='div_checkbox_LVM'>
+                        <input type="checkbox" name="LVM" id="checkbox_LVM">
+                        <label for="LVM">左心室心肌</label>
+						<input type="button" id="btn_delete_LVM" value="delete">
+                        <br>
+                    </div>
+                    <div style='display:none' id='div_checkbox_LV'>
+                        <input type="checkbox" name="LV" id="checkbox_LV">
+                        <label for="LA">左心室</label>
+						<input type="button" id="btn_delete_LV" value="delete">
+                        <br>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+		<input type="button" name="" id="btn_post_image" value="postImage">
         <br>
-        <br>
-        <br>
-        <button id="startAnnotation">Start Annotation</button>
-        <button id="clearAnnotation">Clear Annotation</button>
-        <button id="saveAnnotation">Save Annotation</button>
-        <button id="getAnnotationFromUNet">Get Annotation From UNet</button>
     </body>
     <div id="contextMenu" style="position: absolute; display: none;">
         <ul>
@@ -39,12 +81,6 @@
             <!-- Add more options as needed -->
         </ul>
     </div>
-    <select id='polygonArea'>
-        <option value="LAM" selected>左心房心肌</option>
-        <option value="LA">左心房</option>
-        <option value="LVM">左心室心肌</option>
-        <option value="LV">左心室</option>
-    </select>
     <fieldset>
     </fieldset>
     <script src="{%static 'annotate/js/script.js' %}"></script>
