@@ -53,6 +53,7 @@ def readImage(request):
 
     return render(request, 'annotate/readImage.html',locals())
 
+
 @csrf_exempt
 def getAnnotationFromUNet(request):
 

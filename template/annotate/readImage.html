@@ -24,7 +24,13 @@
                         <br>
                         <button class="btn btn-primary" id="saveAnnotation">Save Annotation</button>
                         <br>
-                        <button class="btn btn-primary" id="getAnnotationFromUNet">Get Annotation From UNet</button>
+                        <button class="btn btn-primary" id="getAnnotationFromUNet">UNet(Already Predict)</button>
+                        <br>
+						<button class="btn btn-primary" id="btn_UNet">UNet(Predict Now)</button>
+                        <br>
+                        <button class="btn btn-primary" id="btn_viewClassify">View Classify</button>
+                        <br>
+                        <button class="btn btn-primary" id="btn_MedSAM">MedSAM</button>
                         <br>
                     </div>
                     <select class="form-select" id='polygonArea'>
@@ -33,46 +39,52 @@
                         <option value="LVM">左心室心肌</option>
                         <option value="LV">左心室</option>
                     </select>
+                    <hr>
+                    <input type="button" name="btn_LAM_seg" id="btn_LAM_seg" value="LAM Seg">
+                    <select class="form-select" id='select_LAM_mth'>
+                        <option value="EqualLAM" selected>Equal LAM</option>
+                        <option value="SnakeLAM">Snake LAM</option>
+                    </select>
                 </div>
                 <div class="col border">
                     <canvas id="annotationCanvas" width="800" height="450"></canvas>
                 </div>
                 <div class="col border">
-
-					<label>View:</label>
-
-					<input type='text' id='text_view' maxlength="10" >
+                    <label>View:</label>
+                    <select class="form-select" id='view_select'>
+                        <option value="2ch">A2C</option>
+                        <option value="3ch">A3C</option>
+                        <option value="4ch">A4C</option>
+                    </select>
                     <legend>分割資訊</legend>
                     <div id="annotationCheckbox"></div>
                     <div style='display:none' id='div_checkbox_LAM'>
                         <input type="checkbox" name="LAM" id="checkbox_LAM">
                         <label for="LAM">左心房心肌</label>
-						<input type="button" id="btn_delete_LAM" value="delete">
+                        <input type="button" id="btn_delete_LAM" value="delete">
                         <br>
                     </div>
                     <div style='display:none' id='div_checkbox_LA'>
                         <input type="checkbox" name="LA" id="checkbox_LA">
                         <label for="LA">左心房</label>
-						<input type="button" id="btn_delete_LA" value="delete">
+                        <input type="button" id="btn_delete_LA" value="delete">
                         <br>
                     </div>
                     <div style='display:none' id='div_checkbox_LVM'>
                         <input type="checkbox" name="LVM" id="checkbox_LVM">
                         <label for="LVM">左心室心肌</label>
-						<input type="button" id="btn_delete_LVM" value="delete">
+                        <input type="button" id="btn_delete_LVM" value="delete">
                         <br>
                     </div>
                     <div style='display:none' id='div_checkbox_LV'>
                         <input type="checkbox" name="LV" id="checkbox_LV">
                         <label for="LA">左心室</label>
-						<input type="button" id="btn_delete_LV" value="delete">
+                        <input type="button" id="btn_delete_LV" value="delete">
                         <br>
                     </div>
                 </div>
             </div>
         </div>
-
-		<input type="button" name="" id="btn_post_image" value="postImage">
         <br>
     </body>
     <div id="contextMenu" style="position: absolute; display: none;">
@@ -84,4 +96,5 @@
     <fieldset>
     </fieldset>
     <script src="{%static 'annotate/js/script.js' %}"></script>
+    <script src="{%static 'annotate/js/seg.js' %}"></script>
 {% endblock content %}

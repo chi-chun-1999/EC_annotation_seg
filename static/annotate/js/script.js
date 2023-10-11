@@ -1,4 +1,6 @@
 // JavaScript code for polygon annotation tool
+
+
 const canvas = document.getElementById('annotationCanvas');
 const ctx = canvas.getContext('2d');
 const image = document.getElementById('annotatableImage');
@@ -82,13 +84,14 @@ function initCanvas() {
     // ctx.fillRect(0, 0, canvas.width, canvas.height);
     // ctx.drawImage(image, 0, 0);
     drawImage();
+    view = document.getElementById('view_select').value;
 }
 
 selectPolygonArea.addEventListener('change', choosePolygonArea);
 
 function choosePolygonArea() {
-    let area = selectPolygonArea.value;
-    console.log('area: ' + area);
+    annoateArea = selectPolygonArea.value;
+    console.log('area: ' + annoateArea);
 
 }
 
@@ -126,7 +129,11 @@ document.getElementById('btn_delete_LVM').addEventListener('click', deleteAnnota
 document.getElementById('btn_delete_LAM').addEventListener('click', deleteAnnotationArea('LAM'));
 
 // Function to change the view
-document.getElementById('text_view').addEventListener('change', viewChange);
+document.getElementById('view_select').addEventListener('change', viewChange);
+
+
+
+
 
 
 // Event listeners for mouse actions
@@ -136,14 +143,14 @@ canvas.addEventListener('mousedown', (e) => {
     let canvas_y = e.clientY - canvas.getBoundingClientRect().top;
 
     // absoulte position
-    x = (canvas_x - imgTopX) / scale;
-    y = (canvas_y - imgTopY) / scale;
+    let x = (canvas_x - imgTopX) / scale;
+    let y = (canvas_y - imgTopY) / scale;
 
     // absolute position on the image
     // absolute_x_img = x - imgTopX;
     // absolute_y_img = y - imgTopY;
-    absolute_x_img = x;
-    absolute_y_img = y;
+    let absolute_x_img = x;
+    let absolute_y_img = y;
 
     if (e.button === 1) {
         isDragging = true;
@@ -174,7 +181,20 @@ canvas.addEventListener('mousedown', (e) => {
         });
         drawImage();
         // console.log('mousdown ---- ')
+    } else if (isDrawingMedSAM) {
+        console.log('isDrawingMedSAM');
+        points = [];
+        points.push({
+            x: absolute_x_img,
+            y: absolute_y_img
+        });
+        points.push({
+            x: absolute_x_img,
+            y: absolute_y_img
+        });
+        drawImage();
     }
+
 
     // if isEditing, then select the point to edit
     // if the mouse is close to a point, then select it
@@ -310,6 +330,29 @@ canvas.addEventListener('mousemove', (e) => {
         lastMouseX = e.clientX;
         lastMouseY = e.clientY;
         drawImage();
+    }
+    if (isDrawingMedSAM) {
+        if (points.length == 2) {
+            let canvas_x = e.clientX - canvas.getBoundingClientRect().left;
+            let canvas_y = e.clientY - canvas.getBoundingClientRect().top;
+
+            // absoulte position
+            let x = (canvas_x - imgTopX) / scale;
+            let y = (canvas_y - imgTopY) / scale;
+
+            // absolute position on the image
+            // absolute_x_img = x - imgTopX;
+            // absolute_y_img = y - imgTopY;
+            let absolute_x_img = x;
+            let absolute_y_img = y;
+
+            points[1] = {
+                x: absolute_x_img,
+                y: absolute_y_img
+            };
+            drawImage();
+
+        }
     } else {
         // find mouse in which area
         let x = e.clientX - canvas.getBoundingClientRect().left;
@@ -332,6 +375,16 @@ canvas.addEventListener('mouseup', () => {
         isDragging = false;
     }
 
+    if (isDrawingMedSAM) {
+        isDrawingMedSAM = false;
+		canvas.style.cursor = 'auto';
+        MedSAMGetSeg(points)
+        points = [];
+        drawImage();
+
+    }
+
+
 });
 
 
@@ -340,41 +393,19 @@ function deleteAnnotationArea(area) {
         console.log('deleteAnnotationArea: ' + area);
         _polygonAreaPoints[area].points = [];
         _polygonAreaPoints[area].checkbox = false;
-		document.getElementById('div_checkbox_' + area).style.display = 'none';
+        document.getElementById('div_checkbox_' + area).style.display = 'none';
         drawImage();
     }
 }
 
 function viewChange() {
 
-	view = document.getElementById('text_view').value;
-	console.log('view: ' + view);
+    view = document.getElementById('view_select').value;
+    // console.log('view: ' + view);
 
 }
 
-document.getElementById('btn_post_image').addEventListener('click', testPostImage);
 
-function testPostImage() {
-	console.log('testPostImage');
-	// var imageDataURL = image.toDataURL('image/png');
-
-	data = {
-		// 'csrfmiddlewaretoken': '{{ csrf_token }}',
-		'img': image.src,
-		'view': view
-	}
-
-	$.ajax({
-		type: "POST",
-		url: "http://192.168.195.98:8080/CAMUSegmentation",
-		data: JSON.stringify(data),
-		headers: { 'Content-Type': 'application/json' },
-		success: function(response) {
-			// alert(response);
-			console.log(response);
-		}
-	})
-}
 
 
 
@@ -599,6 +630,23 @@ function drawNewPolygon() {
             ctx.fill();
         }
     }
+
+    if (isDrawingMedSAM) {
+
+        if (points.length == 2) {
+            ctx.beginPath();
+
+            draw_point0 = calculateDrawPointsPosition(points[0]);
+            draw_point1 = calculateDrawPointsPosition(points[1]);
+            ctx.rect(draw_point0.x, draw_point0.y, draw_point1.x - draw_point0.x, draw_point1.y - draw_point0.y);
+
+            // ctx.rect(points[0].x, points[0].y, points[1].x - points[0].x, points[1].y - points[0].y);
+            ctx.strokeStyle = linecolor;
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+        }
+    }
 }
 
 function drawArea(area_points, color = 'rgb(255, 0, 0)', istarget = false) {
@@ -769,7 +817,7 @@ canvas.addEventListener('wheel', (e) => {
 
 function getAnnotationFromUNet() {
     console.log('getAnnotationFromUNet');
-	
+
     // get response from django server
     let response = $.ajax({
         type: "GET",
@@ -806,3 +854,5 @@ function getAnnotationFromUNet() {
         }
     })
 }
+
+
