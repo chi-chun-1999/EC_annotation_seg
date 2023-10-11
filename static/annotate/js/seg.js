@@ -2,6 +2,8 @@ document.getElementById('btn_UNet').addEventListener('click', UNetGetSeg);
 
 document.getElementById('btn_viewClassify').addEventListener('click', viewClassify);
 
+document.getElementById('btn_LAM_seg').addEventListener('click', EqualLAMSeg);
+
 document.getElementById('btn_MedSAM').addEventListener('click', function() {
     isDrawingMedSAM = true;
     canvas.style.cursor = 'crosshair';
@@ -104,7 +106,7 @@ function MedSAMGetSeg(prompt_bbox) {
             }
             _polygonAreaPoints[selectPolygonArea.value].points = tmp;
             _polygonAreaPoints[selectPolygonArea.value].checkbox = true;
-			drawImage();
+            drawImage();
         },
 
     })
@@ -112,5 +114,42 @@ function MedSAMGetSeg(prompt_bbox) {
 
 
 function EqualLAMSeg(params) {
-	
+    console.log('EqualLAMSeg', params);
+    data = {
+        'img': image.src,
+        'LA': _polygonAreaPoints['LA'].points,
+        'LV': _polygonAreaPoints['LV'].points,
+		'key_points': []
+    }
+
+	$.ajax({
+		type: "POST",
+        url: "http://192.168.195.98:8887/EqualLAMSegmentation",
+		data: JSON.stringify(data),
+		headers: {
+			'Content-Type': 'application/json'
+		},
+		success: function(response) {
+			console.log(response);
+			if (response['success'] == false) {
+				alert('EqualLAMSeg failed');
+				return;
+			} 
+
+			else if (response['success'] == true) {
+				tmp = []
+				for (let key in response['polygon_points']) {
+					tmp.push({
+						x: response['polygon_points'][key][0],
+						y: response['polygon_points'][key][1]
+					})
+				}
+				_polygonAreaPoints['LAM'].points = tmp;
+				_polygonAreaPoints['LAM'].checkbox = true;
+				drawImage();
+			}
+			
+		},
+
+	})
 }
