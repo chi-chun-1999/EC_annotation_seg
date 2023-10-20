@@ -23,7 +23,7 @@ function UNetGetSeg() {
 
     $.ajax({
         type: "POST",
-        url: "http://192.168.195.98:8080/CAMUSegmentation",
+        url: "http://"+function_server_ip+":8080/CAMUSegmentation",
         data: JSON.stringify(data),
         headers: {
             'Content-Type': 'application/json'
@@ -66,7 +66,7 @@ function viewClassify() {
 
     $.ajax({
         type: "POST",
-        url: "http://192.168.195.98:8080/viewClassification",
+        url: "http://"+function_server_ip+":8080/viewClassification",
         data: JSON.stringify(data),
         headers: {
             'Content-Type': 'application/json'
@@ -89,7 +89,8 @@ function MedSAMGetSeg(prompt_bbox) {
 
     $.ajax({
         type: "POST",
-        url: "http://192.168.195.98:8888/MedSAMSegmentation",
+        // url: "http://192.168.195.98:8888/MedSAMSegmentation",
+        url: "http://"+function_server_ip+":8888/MedSAMSegmentation",
         data: JSON.stringify(data),
         headers: {
             'Content-Type': 'application/json'
@@ -115,41 +116,80 @@ function MedSAMGetSeg(prompt_bbox) {
 
 function EqualLAMSeg(params) {
     console.log('EqualLAMSeg', params);
+	lam_seg_value = document.getElementById('LAM_seg_value').value
+
     data = {
         'img': image.src,
         'LA': _polygonAreaPoints['LA'].points,
         'LV': _polygonAreaPoints['LV'].points,
-		'key_points': []
+        'key_points': [],
+		'lam_seg_value': lam_seg_value,
     }
 
-	$.ajax({
-		type: "POST",
-        url: "http://192.168.195.98:8887/EqualLAMSegmentation",
-		data: JSON.stringify(data),
-		headers: {
-			'Content-Type': 'application/json'
-		},
-		success: function(response) {
-			console.log(response);
-			if (response['success'] == false) {
-				alert('EqualLAMSeg failed');
-				return;
-			} 
+    LAM_seg_meth = document.getElementById('select_LAM_meth').value
+    console.log(LAM_seg_meth)
 
-			else if (response['success'] == true) {
-				tmp = []
-				for (let key in response['polygon_points']) {
-					tmp.push({
-						x: response['polygon_points'][key][0],
-						y: response['polygon_points'][key][1]
-					})
-				}
-				_polygonAreaPoints['LAM'].points = tmp;
-				_polygonAreaPoints['LAM'].checkbox = true;
-				drawImage();
-			}
-			
-		},
 
-	})
+    if (LAM_seg_meth == 'EqualLAM') {
+        $.ajax({
+            type: "POST",
+            // url: "http://192.168.195.98:8887/EqualLAMSegmentation",
+            url: "http://"+function_server_ip+":8887/EqualLAMSegmentation",
+            data: JSON.stringify(data),
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            success: function(response) {
+                console.log(response);
+                if (response['success'] == false) {
+                    alert('EqualLAMSeg failed');
+                    return;
+                } else if (response['success'] == true) {
+                    tmp = []
+                    for (let key in response['polygon_points']) {
+                        tmp.push({
+                            x: response['polygon_points'][key][0],
+                            y: response['polygon_points'][key][1]
+                        })
+                    }
+                    _polygonAreaPoints['LAM'].points = tmp;
+                    _polygonAreaPoints['LAM'].checkbox = true;
+                    drawImage();
+                }
+
+            },
+
+        })
+
+    } 
+	else if (LAM_seg_meth == 'SnakeLAM') {
+        $.ajax({
+                type: "POST",
+                url: "http://"+function_server_ip+":8887/SnakeLAMSegmentation",
+                data: JSON.stringify(data),
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+            success: function(response) {
+                console.log(response);
+                if (response['success'] == false) {
+                    alert('EqualLAMSeg failed');
+                    return;
+                } else if (response['success'] == true) {
+                    tmp = []
+                    for (let key in response['polygon_points']) {
+                        tmp.push({
+                            x: response['polygon_points'][key][0],
+                            y: response['polygon_points'][key][1]
+                        })
+                    }
+                    _polygonAreaPoints['LAM'].points = tmp;
+                    _polygonAreaPoints['LAM'].checkbox = true;
+                    drawImage();
+                }
+
+            },
+
+        })
+	}
 }

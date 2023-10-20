@@ -1,9 +1,14 @@
 // JavaScript code for polygon annotation tool
 
 
+const django_data = document.currentScript.dataset
+const image_str = 'data:image/png;base64,'+django_data.image
+const image = document.createElement('img');
+image.src = image_str;
+
 const canvas = document.getElementById('annotationCanvas');
 const ctx = canvas.getContext('2d');
-const image = document.getElementById('annotatableImage');
+// const image = document.getElementById('annotatableImage');
 const selectPolygonArea = document.getElementById('polygonArea');
 const scaleFactor = 1.05; // Adjust the scale factor as needed
 
@@ -11,6 +16,8 @@ window.onload = initCanvas;
 
 
 
+// const function_server_ip = '140.117.164.100';
+const function_server_ip = '192.168.195.98';
 let isDrawing = false;
 let points = [];
 let isEditing = false;
@@ -85,6 +92,7 @@ function initCanvas() {
     // ctx.drawImage(image, 0, 0);
     drawImage();
     view = document.getElementById('view_select').value;
+	LAMSegMthChange();
 }
 
 selectPolygonArea.addEventListener('change', choosePolygonArea);
@@ -130,6 +138,8 @@ document.getElementById('btn_delete_LAM').addEventListener('click', deleteAnnota
 
 // Function to change the view
 document.getElementById('view_select').addEventListener('change', viewChange);
+
+document.getElementById('select_LAM_meth').addEventListener('change', LAMSegMthChange);
 
 
 
@@ -853,6 +863,24 @@ function getAnnotationFromUNet() {
             // alert(response);
         }
     })
+}
+
+function LAMSegMthChange() {
+	var tmp_mth = document.getElementById('select_LAM_meth').value;
+	
+	
+	if (tmp_mth == 'EqualLAM') {
+		document.getElementById('LAM_seg_label').innerHTML = 'LAM width';
+		document.getElementById('LAM_seg_value').value = '15';
+	}
+	else if (tmp_mth == 'SnakeLAM') {
+		document.getElementById('LAM_seg_label').innerHTML = 'Snake iteration';
+		document.getElementById('LAM_seg_value').value = '25';
+
+	}
+
+
+	return 1;
 }
 
 

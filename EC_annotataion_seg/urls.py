@@ -25,7 +25,9 @@ urlpatterns = [
     path('',views.home),
     path('admin/', admin.site.urls),
     path('django_plotly_dash/', include('django_plotly_dash.urls')),
-    path('readImage/',views.readImage,name='readImage'),
+    path('readImage/2ch',views.readImage2ch,name='readImage'),
+    path('readImage/3ch',views.readImage3ch,name='readImage'),
+    path('readImage/4ch',views.readImage4ch,name='readImage'),
     path('getAnnotationFromUNet/',views.getAnnotationFromUNet,name='getAnnotationFromUNet'),
     path('saveAnnotation/',views.saveAnnotation,name='saveAnnotation'),
 ]

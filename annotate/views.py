@@ -44,9 +44,27 @@ def home(request):
 
     return render(request, 'annotate/index.html', context)
 
-def readImage(request):
+def readImage3ch(request):
     
-    image = Image.open('annotate/statics/kmu_2ch_frame2.png')
+    image = Image.open('annotate/statics/kmu_3ch_test.jpg')
+    ioBuffer = io.BytesIO()
+    image.save(ioBuffer, format='PNG')
+    data = base64.b64encode(ioBuffer.getvalue()).decode('utf-8')
+
+    return render(request, 'annotate/readImage.html',locals())
+
+def readImage2ch(request):
+    
+    image = Image.open('annotate/statics/kmu_2ch_test.png')
+    ioBuffer = io.BytesIO()
+    image.save(ioBuffer, format='PNG')
+    data = base64.b64encode(ioBuffer.getvalue()).decode('utf-8')
+
+    return render(request, 'annotate/readImage.html',locals())
+
+def readImage4ch(request):
+    
+    image = Image.open('annotate/statics/kmu_4ch_test.png')
     ioBuffer = io.BytesIO()
     image.save(ioBuffer, format='PNG')
     data = base64.b64encode(ioBuffer.getvalue()).decode('utf-8')
