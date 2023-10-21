@@ -139,7 +139,7 @@ document.getElementById('btn_delete_LAM').addEventListener('click', deleteAnnota
 // Function to change the view
 document.getElementById('view_select').addEventListener('change', viewChange);
 
-document.getElementById('select_LAM_meth').addEventListener('change', LAMSegMthChange);
+document.getElementById('select_LAM_mth').addEventListener('change', LAMSegMthChange);
 
 
 
@@ -866,7 +866,7 @@ function getAnnotationFromUNet() {
 }
 
 function LAMSegMthChange() {
-	var tmp_mth = document.getElementById('select_LAM_meth').value;
+	var tmp_mth = document.getElementById('select_LAM_mth').value;
 	
 	
 	if (tmp_mth == 'EqualLAM') {

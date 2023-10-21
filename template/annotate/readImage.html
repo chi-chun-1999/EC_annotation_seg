@@ -40,14 +40,13 @@
                         <option value="LV">左心室</option>
                     </select>
                     <hr>
-                    <input type="button" name="btn_LAM_seg" id="btn_LAM_seg" value="LAM Segmentation">
-                    <select class="form-select" id='select_LAM_meth'>
+                    <input type="button" name="btn_LAM_seg" id="btn_LAM_seg" value="LAM Seg">
+                    <select class="form-select" id="select_LAM_mth">
                         <option value="EqualLAM" selected>Equal LAM</option>
                         <option value="SnakeLAM">Snake LAM</option>
                     </select>
-					<label id='LAM_seg_label' for='LAM_seg_value'></label>
-					<input type="number" id="LAM_seg_value" name="LAM_seg_value" step=1 value=15>
-					
+					<label id='LAM_seg_label'></label>
+					<input type="number" id="LAM_seg_value" name="points" step=1>
                 </div>
                 <div class="col border">
                     <canvas id="annotationCanvas" width="800" height="450"></canvas>
@@ -99,8 +98,7 @@
     <fieldset>
     </fieldset>
 	<script src="{%static 'annotate/js/script.js' %}"
-			defer
-			data-image = "{{data}}"></script>
-    <script src="{%static 'annotate/js/seg.js' %}"></script>
-	
+					defer
+					data-image="{{data}}"></script>
+	<script src="{%static 'annotate/js/seg.js' %}"></script>
 {% endblock content %}

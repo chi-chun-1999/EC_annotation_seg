@@ -126,8 +126,8 @@ function EqualLAMSeg(params) {
 		'lam_seg_value': lam_seg_value,
     }
 
-    LAM_seg_meth = document.getElementById('select_LAM_meth').value
-    console.log(LAM_seg_meth)
+    LAM_seg_meth = document.getElementById('select_LAM_mth').value;
+    console.log(LAM_seg_meth);
 
 
     if (LAM_seg_meth == 'EqualLAM') {
