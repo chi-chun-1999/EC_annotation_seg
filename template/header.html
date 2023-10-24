@@ -11,12 +11,12 @@
                 <div class="navbar-nav">
 
 					{% if username %}
-					  <a class="nav-link active" aria-current="page" href="/">Home</a>
-					  <a class="nav-link" href="/logout">登出</a>
+					  <!-- <a class="nav-link active" aria-current="page" href="/">Home</a> -->
+					  <a class="nav-link" href="/logout/?next=/login">登出</a>
 				  	{% else %}
-					  <a class="nav-link" href="/admin/login/?next=/">Django登入</a>
+					  <a class="nav-link" href="/login/?next=/">Django登入</a>
 					{% endif %}
-					  <a class="nav-link" href="/admin/">後台管理</a>
+					  <!-- <a class="nav-link" href="/admin/">後台管理</a> -->
 
                 </div>
               </div>

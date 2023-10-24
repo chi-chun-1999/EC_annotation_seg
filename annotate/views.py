@@ -8,6 +8,8 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import numpy as np
 from imantics import Polygons, Mask
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.views import LoginView, LogoutView
 
 
 # Create your views here.
@@ -15,36 +17,27 @@ from imantics import Polygons, Mask
 def home(request):
     hello = 'Hello World!'
 
-    def scatter():
-        x1 = [1, 2, 3, 4, 5]
-        y1 = [1, 2, 4, 8, 16]
+    if request.user.is_authenticated:
+        username = request.user.username
+    return render(request, 'annotate/index.html', locals())
 
-        trace1 = go.Scatter(
-            x=x1,
-            y=y1,
-            mode='lines+markers',
-            name='linear',
-            line=dict(
-                shape='linear'
-            )
-        )
 
-        layout = dict(
-            title='Linear',
-            xaxis=dict(range=[min(x1), max(x1)]),
-            yaxis=dict(range=[min(y1), max(y1)]),
-                )
-        fig = go.Figure(data=[trace1], layout=layout)
-        plot_div = plot(fig, output_type='div', include_plotlyjs=False)
-        return plot_div
 
-    context ={
-        'plot1': scatter()
-    }
+class CustomLoginView(LoginView):
+    template_name = 'login.html'
+    redirect_authenticated_user = True
 
-    return render(request, 'annotate/index.html', context)
+class CustomLogoutView(LogoutView):
+    template_name = 'logout.html'
+    redirect_authenticated_user = True
 
+
+
+@login_required
 def readImage3ch(request):
+    
+    if request.user.is_authenticated:
+        username = request.user.username
     
     image = Image.open('annotate/statics/kmu_3ch_test.jpg')
     ioBuffer = io.BytesIO()
@@ -53,7 +46,10 @@ def readImage3ch(request):
 
     return render(request, 'annotate/readImage.html',locals())
 
+@login_required
 def readImage2ch(request):
+    if request.user.is_authenticated:
+        username = request.user.username
     
     image = Image.open('annotate/statics/kmu_2ch_test.png')
     ioBuffer = io.BytesIO()
@@ -62,7 +58,10 @@ def readImage2ch(request):
 
     return render(request, 'annotate/readImage.html',locals())
 
+@login_required
 def readImage4ch(request):
+    if request.user.is_authenticated:
+        username = request.user.username
     
     image = Image.open('annotate/statics/kmu_4ch_test.png')
     ioBuffer = io.BytesIO()

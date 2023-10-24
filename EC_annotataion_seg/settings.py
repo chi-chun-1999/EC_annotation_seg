@@ -26,6 +26,13 @@ SECRET_KEY = 'django-insecure-&@6cep)kl-56%q^t=@d-p((gw5z_-fzh59p^_d_j5_m9-=i9)2
 DEBUG = True
 
 ALLOWED_HOSTS = ['*']
+LOGIN_URL = '/login'
+LOGIN_REDIRECT_URL = '/'
+
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+]
+
 
 
 # Application definition

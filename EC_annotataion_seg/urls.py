@@ -23,6 +23,8 @@ from annotate.dash_apps import simpleexample
 
 urlpatterns = [
     path('',views.home),
+    path('login/',views.CustomLoginView.as_view(),name='login'),
+    path('logout/',views.CustomLogoutView.as_view(),name='logout'),
     path('admin/', admin.site.urls),
     path('django_plotly_dash/', include('django_plotly_dash.urls')),
     path('readImage/2ch',views.readImage2ch,name='readImage'),
