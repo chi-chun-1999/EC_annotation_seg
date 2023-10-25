@@ -33,6 +33,8 @@ AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
 ]
 
+TASK_STORE_ROOT_PATH = '/mnt/chi-chun/data1t/EC_ann/task'
+
 
 
 # Application definition
