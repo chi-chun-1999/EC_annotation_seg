@@ -59,6 +59,28 @@ def showAnnotationImage(request,task_index):
         image.save(ioBuffer, format='PNG')
         data = base64.b64encode(ioBuffer.getvalue()).decode('utf-8')
 
+        frame_information = []
+        
+        for i in img_data_list:
+
+            tmp_annotation_data = AnnotationData.objects.filter(image_data=i)
+
+            if len(tmp_annotation_data) == 0:
+                tmp_polygons = {'LAM':[],'LA':[],'LVM':[],'LV':[]}
+                tmp_information = {'key_points':{},'view':'','polygon_area':tmp_polygons}
+                frame_information.append(tmp_information)
+
+            else:
+                tmp_polygons = Polygons.objects.filter(annotation_data=tmp_annotation_data[0])
+                tmp_polygons = {i.area:i.points for i in tmp_polygons}
+                tmp_information = {'key_points':tmp_annotation_data[0].key_points,'view':tmp_annotation_data[0].view,'polygon_area':tmp_polygons}
+                frame_information.append(tmp_information)
+
+        frame_information = json.dumps(frame_information)
+                
+
+
+
         return render(request, 'annotate/annotation.html',locals())
 
 @csrf_exempt
@@ -76,23 +98,25 @@ def AnnotationImage(request,task_index,frame_num):
         annotation_data = AnnotationData.objects.filter(image_data=img_data_list[frame_num])
         polygons_response = {}
 
-        if len(annotation_data)!=0:
-            polygons_from_dataset = Polygons.objects.filter(annotation_data=annotation_data[0])
-            print(polygons_from_dataset)
-            if len(polygons_from_dataset)!=0:
-                for i in polygons_from_dataset:
-                    polygons_response[i.area] = i.points
-            else:
-                area = ['LAM','LA','LVM','LV']
-                for i in area:
-                    polygons_response[i] = []
+        # if len(annotation_data)!=0:
+        #     polygons_from_dataset = Polygons.objects.filter(annotation_data=annotation_data[0])
+        #     print(polygons_from_dataset)
+        #     if len(polygons_from_dataset)!=0:
+        #         for i in polygons_from_dataset:
+        #             polygons_response[i.area] = i.points
+        #     else:
+        #         area = ['LAM','LA','LVM','LV']
+        #         for i in area:
+        #             polygons_response[i] = []
 
         return JsonResponse({'data':data,'polygons':polygons_response,'success':True})
 
     if request.method == 'POST':
         try:
-            polygons_from_request= request.POST.get('polygons')
-            view = request.POST.get('view')
+            decode_polygons = json.loads(request.POST.get('polygons'))
+            view = json.loads(request.POST.get('view'))
+            key_points = json.loads(request.POST.get('key_points'))
+
             task_admin = TaskAdmin()
             task, source_data, img_data_list = task_admin.get_task(task_index)
 
@@ -103,8 +127,8 @@ def AnnotationImage(request,task_index,frame_num):
                 print('create')
                 # print('------------------->')
                 # print('polygons-------->',json.loads(polygons))
-                decode_polygons = json.loads(polygons_from_request)
-                tmp_annotation_data = AnnotationData.objects.create(image_data=img_data_list[frame_num],view=view,key_points=[])
+                # decode_polygons = json.loads(polygons_from_request)
+                tmp_annotation_data = AnnotationData.objects.create(image_data=img_data_list[frame_num],view=view,key_points=key_points)
                 
                 # print(tmp_annotation_data)
                 area = ['LAM','LA','LVM','LV']
@@ -117,6 +141,14 @@ def AnnotationImage(request,task_index,frame_num):
 
             else:
                 print('update')
+                # print(view,key_points)
+                # print(annotation_data[0])
+
+                # annotation_data[0].update(view=view,key_points=key_points)
+                annotation_data[0].key_points = key_points
+                annotation_data[0].view = view
+                annotation_data[0].save()
+                # print('---->',annotation_data[0].view,annotation_data[0].key_points)
 
                 polygons_from_dataset = Polygons.objects.filter(annotation_data=annotation_data[0])
 
@@ -125,10 +157,10 @@ def AnnotationImage(request,task_index,frame_num):
                 area = ['LAM','LA','LVM','LV']
 
                 for i in area:
-                    decode_polygons = json.loads(polygons_from_request)
+                    # decode_polygons = json.loads(polygons_from_request)
 
                     polygons_from_dataset.filter(area=i).update(points=decode_polygons[i])
-                    print(i,'polygons-------->',decode_polygons[i])
+                    # print(i,'polygons-------->',decode_polygons[i])
             # print('polygons-------->',polygons)
             # print('view------------>',view)
             
