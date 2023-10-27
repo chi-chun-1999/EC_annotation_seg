@@ -1,6 +1,9 @@
 from .models import Task, SourceData, ImageData
 from django.conf import  settings
 import os,sys
+from PIL import Image
+
+
 
 
 class TaskAdmin():
@@ -56,9 +59,27 @@ class TaskAdmin():
         return png_list
 
 
+class TaskImageAdmin:
+    def __init__(self,image_data_list,image_size=(384,384)) -> None:
+        self._image_data_list = image_data_list
+        self._source_data = image_data_list[0].source_data
+        self._image_size = image_size
         
-        
+        return
+    
+    def get_image(self,frame_num):
 
 
+        if settings.TASK_STORE_ROOT_PATH[-1] == '/':
+            image_path = settings.TASK_STORE_ROOT_PATH+self._source_data.file_dir+'/'+self._image_data_list[frame_num].file_name
+        else:
+            image_path = settings.TASK_STORE_ROOT_PATH+'/'+self._source_data.file_dir+'/'+self._image_data_list[frame_num].file_name
+
+        image = Image.open(image_path)
+        image = image.resize(self._image_size)
+        
+        # print(image.size)
+
+        return image
 
 

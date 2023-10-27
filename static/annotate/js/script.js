@@ -1,10 +1,10 @@
 // JavaScript code for polygon annotation tool
 
 
-const django_data = document.currentScript.dataset
-const image_str = 'data:image/png;base64,'+django_data.image
-const image = document.createElement('img');
-image.src = image_str;
+const django_data = document.currentScript.dataset;
+// const image_str = 'data:image/png;base64,'+django_data.image
+// const image = document.createElement('img');
+// image.src = image_str;
 
 const canvas = document.getElementById('annotationCanvas');
 const ctx = canvas.getContext('2d');
@@ -78,7 +78,11 @@ let fillcolor = 'rgba(255, 0, 0, 0.5)';
 let editpointcolor = 'black';
 
 
+
 function initCanvas() {
+	
+	
+	createImage(django_data.image);
     // console.log('image.width: ' + image.width);
     let area = selectPolygonArea.value;
     // console.log('area: ' + area);
@@ -93,6 +97,7 @@ function initCanvas() {
     drawImage();
     view = document.getElementById('view_select').value;
 	LAMSegMthChange();
+	
 }
 
 selectPolygonArea.addEventListener('change', choosePolygonArea);
@@ -101,6 +106,14 @@ function choosePolygonArea() {
     annoateArea = selectPolygonArea.value;
     console.log('area: ' + annoateArea);
 
+}
+
+function createImage(image_64encode) {
+	// console.log('createImage');
+	image_str = 'data:image/png;base64,'+image_64encode;
+	image = document.createElement('img');
+	image.src = image_str;
+	// console.log('image size : ' + image.width + ' ' + image.height);
 }
 
 
@@ -257,20 +270,6 @@ canvas.addEventListener('click', (e) => {
     x = (x - imgTopX) / scale;
     y = (y - imgTopY) / scale;
 
-    // if (e.altKey && targetArea != '') {
-    //     // delete the point
-    //     // Check if the "Option" (Alt) key is pressed
-    //     // const closestIndex = findCloestPointInTargetArea(x, y, polygonAreaPoints[targetArea]);
-    // console.log('.....delete ... selectedPointIndex: ' + selectedPointIndex);
-    //     if (selectedPointIndex !== -1) {
-
-    //         polygonAreaPoints[targetArea].splice(selectedPointIndex, 1); // Remove the selected point
-    // selectedPointIndex = -1;
-
-    //         drawImage(); // Redraw the polygon without the removed point
-
-    //     }
-    // }
 });
 
 function findCloestPointInTargetArea(x, y, area_points) {
@@ -721,6 +720,9 @@ function showCurrentAnnotationCheckbox(key) {
         document.getElementById('div_checkbox_' + key).style.display = '';
         document.getElementById('checkbox_' + key).checked = _polygonAreaPoints[key].checkbox;
     }
+	else{
+		document.getElementById('div_checkbox_' + key).style.display = 'none';
+	}
 
 }
 
@@ -729,6 +731,8 @@ function showCurrentAnnotationCheckbox(key) {
 
 // Function to draw the image on the canvas
 function drawImage() {
+	// console.log('drawImage');
+	// console.log('image size : ' + image.width + ' ' + image.height);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.fillStyle = canvasBackground;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -750,6 +754,7 @@ function drawImage() {
     // console.log('imageX: ' + imageX + ' imageY: ' + imageY);
 
     ctx.drawImage(image, imageX, imageY, scaleWidth, scaleHeight);
+		
 
     // ctx.drawImage(image, 0, 0, image.width * scale, image.height * scale);
     drawNewPolygon();
@@ -762,8 +767,8 @@ function drawImage() {
         }
         if (_polygonAreaPoints[key].checkbox != false) {
             drawArea(_polygonAreaPoints[key].points, _polygonAreaPoints[key].color, isTarget);
-            showCurrentAnnotationCheckbox(key);
         }
+            showCurrentAnnotationCheckbox(key);
     }
 }
 

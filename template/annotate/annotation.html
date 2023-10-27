@@ -1,0 +1,110 @@
+<!-- readImage.html -->
+{% extends "base.html" %}
+{% load static %}
+{% block title %}
+    Image annotation
+{% endblock title %}
+{% block content %}
+    <link rel="stylesheet"
+          href="{% static 'annotate/css/annotate.css' %}"
+          type="text/css"
+          media="all">
+    <body>
+        <div style="display:none">
+            <img src="data:image/png;base64,{{ data }}" id="annotatableImage">
+        </div>
+        <div class="container">
+            <h2 class="center">Image annotation</h2>
+            <!-- <p>Default range slider:</p> -->
+			<input type="range" id='frame_range' min=0 max={{image_num}} value={{stop_frame}}>
+			<input type="number" id="frame_num" name="frame_num" min=0 max={{image_num}} step=1 value={{stop_frame}}>
+            <div class="row">
+                <div class="col-2 border">
+                    <div class="d-grid d-md-block">
+                        <button type="button" class="btn btn-primary" id="startAnnotation">Start Annotation</button>
+                        <br>
+                        <button class="btn btn-primary" id="clearAnnotation">Clear Annotation</button>
+                        <br>
+                        <button class="btn btn-primary" id="saveAnnotation">Save Annotation</button>
+                        <br>
+                        <button class="btn btn-primary" id="getAnnotationFromUNet">UNet(Already Predict)</button>
+                        <br>
+                        <button class="btn btn-primary" id="btn_UNet">UNet(Predict Now)</button>
+                        <br>
+                        <button class="btn btn-primary" id="btn_viewClassify">View Classify</button>
+                        <br>
+                        <button class="btn btn-primary" id="btn_MedSAM">MedSAM</button>
+                        <br>
+                    </div>
+                    <select class="form-select" id='polygonArea'>
+                        <option value="LAM" selected>左心房心肌</option>
+                        <option value="LA">左心房</option>
+                        <option value="LVM">左心室心肌</option>
+                        <option value="LV">左心室</option>
+                    </select>
+                    <hr>
+                    <input type="button" name="btn_LAM_seg" id="btn_LAM_seg" value="LAM Seg">
+                    <select class="form-select" id="select_LAM_mth">
+                        <option value="EqualLAM" selected>Equal LAM</option>
+                        <option value="SnakeLAM">Snake LAM</option>
+                    </select>
+                    <label id='LAM_seg_label'></label>
+                    <input type="number" id="LAM_seg_value" name="points" step=1>
+                </div>
+                <div class="col border">
+                    <canvas id="annotationCanvas" width="800" height="450"></canvas>
+                </div>
+                <div class="col border">
+                    <label>View:</label>
+                    <select class="form-select" id='view_select'>
+                        <option value="2ch">A2C</option>
+                        <option value="3ch">A3C</option>
+                        <option value="4ch">A4C</option>
+                    </select>
+                    <legend>分割資訊</legend>
+                    <div id="annotationCheckbox"></div>
+                    <div style='display:none' id='div_checkbox_LAM'>
+                        <input type="checkbox" name="LAM" id="checkbox_LAM">
+                        <label for="LAM">左心房心肌</label>
+                        <input type="button" id="btn_delete_LAM" value="delete">
+                        <br>
+                    </div>
+                    <div style='display:none' id='div_checkbox_LA'>
+                        <input type="checkbox" name="LA" id="checkbox_LA">
+                        <label for="LA">左心房</label>
+                        <input type="button" id="btn_delete_LA" value="delete">
+                        <br>
+                    </div>
+                    <div style='display:none' id='div_checkbox_LVM'>
+                        <input type="checkbox" name="LVM" id="checkbox_LVM">
+                        <label for="LVM">左心室心肌</label>
+                        <input type="button" id="btn_delete_LVM" value="delete">
+                        <br>
+                    </div>
+                    <div style='display:none' id='div_checkbox_LV'>
+                        <input type="checkbox" name="LV" id="checkbox_LV">
+                        <label for="LA">左心室</label>
+                        <input type="button" id="btn_delete_LV" value="delete">
+                        <br>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <br>
+    </body>
+    <div id="contextMenu" style="position: absolute; display: none;">
+        <ul>
+            <li id="deletePoint">Delete Point</li>
+            <!-- Add more options as needed -->
+        </ul>
+    </div>
+    <fieldset>
+    </fieldset>
+    <script src="{%static 'annotate/js/script.js' %}" defer data-image="{{data}}"></script>
+    <script src="{%static 'annotate/js/seg.js' %}"></script>
+
+	<script src="{%static 'annotate/js/frame.js' %}"
+				defer
+				data-task-index="{{task_index}}"
+				data-image-num="{{image_num}}"></script>
+{% endblock content %}

@@ -10,6 +10,11 @@ import numpy as np
 from imantics import Polygons, Mask
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import LoginView, LogoutView
+from .task_admin import TaskAdmin, TaskImageAdmin
+from .models import AnnotationData, Polygons
+import json
+
+
 
 
 # Create your views here.
@@ -32,6 +37,111 @@ class CustomLogoutView(LogoutView):
     redirect_authenticated_user = True
 
 
+def showAnnotationImage(request,task_index):
+    task_admin = TaskAdmin()
+    task, source_data, img_data_list = task_admin.get_task(task_index)
+    print('----------->',request.method)
+
+    if task_index == []:
+        return render(request, 'annotate/readImage.html',locals())
+    
+    else:
+    
+        task_image_admin = TaskImageAdmin(img_data_list)
+
+        image_num = len(img_data_list)
+
+        stop_frame = task.stop_frame
+        task_index = task.id
+        
+        image = task_image_admin.get_image(stop_frame)
+        ioBuffer = io.BytesIO()
+        image.save(ioBuffer, format='PNG')
+        data = base64.b64encode(ioBuffer.getvalue()).decode('utf-8')
+
+        return render(request, 'annotate/annotation.html',locals())
+
+@csrf_exempt
+def AnnotationImage(request,task_index,frame_num):
+    if request.method == 'GET':
+        task_admin = TaskAdmin()
+        task, source_data, img_data_list = task_admin.get_task(task_index)
+        task_image_admin = TaskImageAdmin(img_data_list)
+
+        image = task_image_admin.get_image(frame_num) # PIL Image
+        ioBuffer = io.BytesIO()
+        image.save(ioBuffer, format='PNG')
+        data = base64.b64encode(ioBuffer.getvalue()).decode('utf-8')
+
+        annotation_data = AnnotationData.objects.filter(image_data=img_data_list[frame_num])
+        polygons_response = {}
+
+        if len(annotation_data)!=0:
+            polygons_from_dataset = Polygons.objects.filter(annotation_data=annotation_data[0])
+            print(polygons_from_dataset)
+            if len(polygons_from_dataset)!=0:
+                for i in polygons_from_dataset:
+                    polygons_response[i.area] = i.points
+            else:
+                area = ['LAM','LA','LVM','LV']
+                for i in area:
+                    polygons_response[i] = []
+
+        return JsonResponse({'data':data,'polygons':polygons_response,'success':True})
+
+    if request.method == 'POST':
+        try:
+            polygons_from_request= request.POST.get('polygons')
+            view = request.POST.get('view')
+            task_admin = TaskAdmin()
+            task, source_data, img_data_list = task_admin.get_task(task_index)
+
+            annotation_data = AnnotationData.objects.filter(image_data=img_data_list[frame_num])
+            print(annotation_data)
+            print(len(img_data_list))
+            if len(annotation_data) == 0:
+                print('create')
+                # print('------------------->')
+                # print('polygons-------->',json.loads(polygons))
+                decode_polygons = json.loads(polygons_from_request)
+                tmp_annotation_data = AnnotationData.objects.create(image_data=img_data_list[frame_num],view=view,key_points=[])
+                
+                # print(tmp_annotation_data)
+                area = ['LAM','LA','LVM','LV']
+
+                for i in area:
+                    tmp_polygons = Polygons.objects.create(area=i,points=decode_polygons[i],annotation_data=tmp_annotation_data)
+                    # print(tmp_polygons)
+                    # print(area)
+                    print(i,'polygons-------->',decode_polygons[i])
+
+            else:
+                print('update')
+
+                polygons_from_dataset = Polygons.objects.filter(annotation_data=annotation_data[0])
+
+
+
+                area = ['LAM','LA','LVM','LV']
+
+                for i in area:
+                    decode_polygons = json.loads(polygons_from_request)
+
+                    polygons_from_dataset.filter(area=i).update(points=decode_polygons[i])
+                    print(i,'polygons-------->',decode_polygons[i])
+            # print('polygons-------->',polygons)
+            # print('view------------>',view)
+            
+            # annotation_data = AnnotationData.objects.filter(image_data=img_data_list[frame_num])
+            # print(annotation_data)
+            print('------finish---------->')
+
+            return JsonResponse({'success':True})
+        except Exception as e:
+            return JsonResponse({'error':str(e)})
+        
+
+
 
 @login_required
 def readImage3ch(request):
@@ -40,6 +150,7 @@ def readImage3ch(request):
         username = request.user.username
     
     image = Image.open('annotate/statics/kmu_3ch_test.jpg')
+    print(image.size)
     ioBuffer = io.BytesIO()
     image.save(ioBuffer, format='PNG')
     data = base64.b64encode(ioBuffer.getvalue()).decode('utf-8')

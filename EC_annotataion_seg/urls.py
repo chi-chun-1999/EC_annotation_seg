@@ -30,6 +30,8 @@ urlpatterns = [
     path('readImage/2ch',views.readImage2ch,name='readImage'),
     path('readImage/3ch',views.readImage3ch,name='readImage'),
     path('readImage/4ch',views.readImage4ch,name='readImage'),
+    path('readImage/task/<int:task_index>',views.showAnnotationImage,name='readImage'),
+    path('readImage/task/<int:task_index>/<int:frame_num>',views.AnnotationImage,name='readImage'),
     path('getAnnotationFromUNet/',views.getAnnotationFromUNet,name='getAnnotationFromUNet'),
     path('saveAnnotation/',views.saveAnnotation,name='saveAnnotation'),
 ]
