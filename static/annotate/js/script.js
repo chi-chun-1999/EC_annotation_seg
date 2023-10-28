@@ -492,11 +492,28 @@ function keydownDectect(e) {
         return;
     }
 
+	// if listen to shortcut key ctrl+s, then save the annotation
+	if (e.ctrlKey && e.keyCode === 83) {
+		// get current frame
+    	var current_frame = document.getElementById('frame_num').value;
+		console.log('ctrl+s ---- '+current_frame);
+
+		let area = ['LAM', 'LA', 'LVM', 'LV'];
+		for (var i = 0; i < area.length; i++){
+			frame_information[current_frame]['polygon_area'][area[i]] = Object.assign([], _polygonAreaPoints[area[i]]['points']);
+		}
+
+		saveFrame(current_frame);
+		return;
+	}
+
     // if listen to shortcut key 's', then start the annotation
     if (e.keyCode === 83) {
         startAnnotation();
         return;
     }
+
+
 }
 
 // save annotation using ajax to django server

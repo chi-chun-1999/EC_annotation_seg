@@ -36,6 +36,7 @@ function initFrame() {
 		}
 			
 	}
+	drawImage();
 }
 
 
