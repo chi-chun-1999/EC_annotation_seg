@@ -26,7 +26,10 @@ def home(request):
         username = request.user.username
     return render(request, 'annotate/index.html', locals())
 
+@login_required
 def GetTaskList(request):
+    if request.user.is_authenticated:
+        username = request.user.username
     task_admin = TaskAdmin()
     task_list, show_image_list = task_admin.get_task_list()
     

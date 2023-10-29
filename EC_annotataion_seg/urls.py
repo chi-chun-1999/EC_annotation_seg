@@ -19,11 +19,13 @@ from django.urls import path,include
 from annotate import views
 
 from annotate.dash_apps import simpleexample
+from django.contrib.auth.views import LoginView
 
 
 urlpatterns = [
     path('',views.home),
-    path('login/',views.CustomLoginView.as_view(),name='login'),
+    # path('login/',views.CustomLoginView.as_view(),name='login'),
+    path('login/',LoginView.as_view(template_name='registration/login.html'),name='login'),
     path('logout/',views.CustomLogoutView.as_view(),name='logout'),
     path('admin/', admin.site.urls),
     path('django_plotly_dash/', include('django_plotly_dash.urls')),

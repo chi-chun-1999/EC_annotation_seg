@@ -1,0 +1,10 @@
+.login_container {
+    display: grid;
+    place-items: center;
+    width: 800px;
+    height: 100px; /* 这会使容器占据整个视口高度，可根据需要调整 */
+}
+
+.errorlist.nonfield {
+    color: red;
+}
