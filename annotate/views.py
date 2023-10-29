@@ -26,7 +26,14 @@ def home(request):
         username = request.user.username
     return render(request, 'annotate/index.html', locals())
 
+def GetTaskList(request):
+    task_admin = TaskAdmin()
+    task_list, show_image_list = task_admin.get_task_list()
+    
+    show= [{'task':task_list[i],'show_image':show_image_list[i]} for i in range(len( task_list))]
+    
 
+    return render(request, 'annotate/tasks.html', locals())
 
 class CustomLoginView(LoginView):
     template_name = 'login.html'

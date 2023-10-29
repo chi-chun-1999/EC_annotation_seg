@@ -1,0 +1,59 @@
+.my-custom-list li {
+  display: block;
+  /* 添加其他自定义样式 */
+  padding: 10px; /* 添加边距 */
+  background-color: transparent; /* 设置背景颜色 */
+  border: 1px solid #ccc; /* 设置边框 */
+}
+
+.task-col {
+  /* display: block; */
+  /* 添加其他自定义样式 */
+  padding: 10px; /* 添加边距 */
+  background-color: #eee; /* 设置背景颜色 */
+  border: 1px solid #ddd; /* 设置边框 */
+}
+
+.task-col:hover
+{
+  padding: 9px; /* 添加边距 */
+  border: 2px solid #aac; /* 设置边框 */
+}
+/* 自定义按钮样式 */
+.custom-button {
+  display: inline-block;
+  padding: 10px 20px;
+  border: 1px solid #333;
+  background-color: #f0f0f0;
+  text-decoration: none; /* 移除默认的文本下划线 */
+  color: #333; /* 文本颜色 */
+}
+
+/* 鼠标悬停时的样式 */
+.custom-button:hover {
+  background-color: #333;
+  color: #fff; /* 悬停时的文本颜色 */
+}
+
+.text-task-id
+{
+  color: gray; /* 浅灰色 */
+  font-weight: bold;
+}
+
+.text-task-name
+{
+  font-weight: bold;
+}
+
+.text-task-created-time
+{
+  color: #aaa; /* 浅灰色 */
+}
+
+.title
+{
+  padding: 9px; /* 添加边距 */
+  height: 60px;
+  color: #555;
+}

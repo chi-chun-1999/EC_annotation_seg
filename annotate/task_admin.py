@@ -2,6 +2,8 @@ from .models import Task, SourceData, ImageData
 from django.conf import  settings
 import os,sys
 from PIL import Image
+import io
+import base64
 
 
 
@@ -57,6 +59,24 @@ class TaskAdmin():
                     png_list.append(os.path.join(root, file))
 
         return png_list
+
+    def get_task_list(self):
+        task_list = Task.objects.all()
+        show_image_list = []
+
+        # get first image from each task
+        for task in task_list:
+            source_data = task.source_data
+            image_data_list = ImageData.objects.filter(source_data=source_data)
+            tmp = TaskImageAdmin(image_data_list,image_size=(100,100))
+            tmp_img = tmp.get_image(0)
+            io_buffer = io.BytesIO()
+            tmp_img.save(io_buffer, format='PNG')
+            data = base64.b64encode(io_buffer.getvalue()).decode('utf-8')
+
+            show_image_list.append(data)
+
+        return task_list,show_image_list
 
 
 class TaskImageAdmin:

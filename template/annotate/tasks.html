@@ -1,0 +1,52 @@
+<!-- tasks.html -->
+{% extends "base.html" %}
+{% load static %}
+{% block title %}
+    Task List
+{% endblock title %}
+{% block content %}
+    <link rel="stylesheet"
+          href="{% static 'annotate/css/tasks.css' %}"
+          type="text/css"
+          media="all">
+
+    <body>
+		<div class="container text-center title">
+		<h1>All Task</h1>
+
+			
+		</div>
+
+
+	<div class="container">
+			
+		{% for s in show%}
+		<div class="row justify-content-center task-col ">
+			
+			<!-- show image -->
+			<div class="col-2">
+				<img src="data:image/png;base64,{{s.show_image}}" class="img-fluid" alt="Responsive image">
+			</div>
+
+			<div class="col-7  align-items-center">
+			<span class="text-task-id">#{{s.task.id}}:</span> <span class="text-task-name">{{s.task.name}}</span>
+			<br>
+			<span class="text-task-created-time">Created time: {{s.task.created_time}}</span> 
+			</div>
+			<div class="col-2 text-center d-flex align-items-center justify-content-center">
+				  <a href="/task/{{s.task.id}}" class=" custom-button" style="display: inline-block;">Open</a>
+			</div>
+
+
+		</div>
+			<br>
+
+		{%endfor%}
+
+	</div>
+
+
+
+	</body>
+{% endblock content %}
+
