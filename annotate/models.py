@@ -27,6 +27,9 @@ class ImageData(models.Model):
     source_data = models.ForeignKey(SourceData,on_delete=models.CASCADE)
     created_time = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        ordering = ['file_name']
+
     def __str__(self):
         return self.file_name
 

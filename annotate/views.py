@@ -11,7 +11,7 @@ from imantics import Polygons, Mask
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import LoginView, LogoutView
 from .task_admin import TaskAdmin, TaskImageAdmin
-from .models import AnnotationData, Polygons
+from .models import AnnotationData, Polygons, Task
 import json
 
 
@@ -47,51 +47,70 @@ class CustomLogoutView(LogoutView):
     redirect_authenticated_user = True
 
 
+@login_required
+@csrf_exempt
 def showAnnotationImage(request,task_index):
+    if request.user.is_authenticated:
+        username = request.user.username
     task_admin = TaskAdmin()
     task, source_data, img_data_list = task_admin.get_task(task_index)
-    print('----------->',request.method)
+    # print('----------->',request.method)
 
-    if task_index == []:
-        return render(request, 'annotate/readImage.html',locals())
-    
-    else:
-    
-        task_image_admin = TaskImageAdmin(img_data_list)
+    if request.method == 'GET':
 
-        image_num = len(img_data_list)
-
-        stop_frame = task.stop_frame
-        task_index = task.id
+        if task_index == []:
+            return render(request, 'annotate/readImage.html',locals())
         
-        image = task_image_admin.get_image(stop_frame)
-        ioBuffer = io.BytesIO()
-        image.save(ioBuffer, format='PNG')
-        data = base64.b64encode(ioBuffer.getvalue()).decode('utf-8')
-
-        frame_information = []
+        else:
         
-        for i in img_data_list:
+            task_image_admin = TaskImageAdmin(img_data_list)
 
-            tmp_annotation_data = AnnotationData.objects.filter(image_data=i)
+            image_num = len(img_data_list)
 
-            if len(tmp_annotation_data) == 0:
-                tmp_polygons = {'LAM':[],'LA':[],'LVM':[],'LV':[]}
-                tmp_information = {'key_points':{},'view':'','polygon_area':tmp_polygons}
-                frame_information.append(tmp_information)
+            stop_frame = task.stop_frame
+            task_index = task.id
+            
+            image = task_image_admin.get_image(stop_frame)
+            ioBuffer = io.BytesIO()
+            image.save(ioBuffer, format='PNG')
+            data = base64.b64encode(ioBuffer.getvalue()).decode('utf-8')
 
-            else:
-                tmp_polygons = Polygons.objects.filter(annotation_data=tmp_annotation_data[0])
-                tmp_polygons = {i.area:i.points for i in tmp_polygons}
-                tmp_information = {'key_points':tmp_annotation_data[0].key_points,'view':tmp_annotation_data[0].view,'polygon_area':tmp_polygons}
-                frame_information.append(tmp_information)
+            frame_information = []
+            
+            for i in img_data_list:
 
-        frame_information = json.dumps(frame_information)
+                tmp_annotation_data = AnnotationData.objects.filter(image_data=i)
+
+                if len(tmp_annotation_data) == 0:
+                    tmp_polygons = {'LAM':[],'LA':[],'LVM':[],'LV':[]}
+                    tmp_information = {'key_points':{},'view':'','polygon_area':tmp_polygons}
+                    frame_information.append(tmp_information)
+
+                else:
+                    tmp_polygons = Polygons.objects.filter(annotation_data=tmp_annotation_data[0])
+                    tmp_polygons = {i.area:i.points for i in tmp_polygons}
+                    tmp_information = {'key_points':tmp_annotation_data[0].key_points,'view':tmp_annotation_data[0].view,'polygon_area':tmp_polygons}
+                    frame_information.append(tmp_information)
+
+            frame_information = json.dumps(frame_information)
+        return render(request, 'annotate/annotation.html',locals())
+
+    if request.method == "POST":
+        stop_frame = request.POST.get('stop_frame')
+        task_index = request.POST.get('task_index')
+        # print('stop_frame',stop_frame)
+        # print('task_index',task_index)
+        
+        # update task data
+        Task.objects.filter(id=task_index).update(stop_frame=stop_frame)
+        return JsonResponse({'success':True})
+
+        
+        
                 
 
 
 
-        return render(request, 'annotate/annotation.html',locals())
 
 @csrf_exempt
 def AnnotationImage(request,task_index,frame_num):
@@ -176,7 +195,7 @@ def AnnotationImage(request,task_index,frame_num):
             
             # annotation_data = AnnotationData.objects.filter(image_data=img_data_list[frame_num])
             # print(annotation_data)
-            print('------finish---------->')
+            # print('------finish---------->')
 
             return JsonResponse({'success':True})
         except Exception as e:

@@ -1,4 +1,4 @@
-from .models import Task, SourceData, ImageData
+from .models import Task, SourceData, ImageData, AnnotationData, Polygons
 from django.conf import  settings
 import os,sys
 from PIL import Image
@@ -101,5 +101,33 @@ class TaskImageAdmin:
         # print(image.size)
 
         return image
+
+    def assign_annotation_data_view(self,frame_num,view):
+        tmp_annotation_data = AnnotationData.objects.filter(image_data=self._image_data_list[frame_num])
+        if len(tmp_annotation_data) != 0:
+            tmp_annotation_data[0].view = view
+            tmp_annotation_data[0].save()
+            return True
+        else:
+            return False
+
+    def create_annotation_data(self,frame_num,view):
+
+
+        tmp_annotation_data = AnnotationData.objects.filter(image_data=self._image_data_list[frame_num])
+
+        if len(tmp_annotation_data) == 0:
+            area = ['LAM','LA','LVM','LV']
+            key_points = {}
+            tmp_annotation_data = AnnotationData.objects.create(image_data=self._image_data_list[frame_num],view=view,key_points=key_points)
+            for i in area:
+                Polygons.objects.create(area=i,points=[],annotation_data=tmp_annotation_data)
+            
+
+            return True
+        else:
+            return False
+
+
 
 

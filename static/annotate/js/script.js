@@ -21,6 +21,7 @@ const function_server_ip = '192.168.195.98';
 let isDrawing = false;
 let points = [];
 let isEditing = false;
+let saveRemind = false;
 let scale = 1;
 let canvasBackground = 'rgb(225, 225, 225)';
 
@@ -155,10 +156,6 @@ document.getElementById('view_select').addEventListener('change', viewChange);
 document.getElementById('select_LAM_mth').addEventListener('change', LAMSegMthChange);
 
 
-
-
-
-
 // Event listeners for mouse actions
 // Edit the annotation points
 canvas.addEventListener('mousedown', (e) => {
@@ -284,6 +281,7 @@ function findCloestPointInTargetArea(x, y, area_points) {
             closestPointIndex = i;
             closestDistance = distance;
             isEditing = true;
+			saveRemind = true;
         }
     }
     // console.log('closestPointIndex: ' + closestPointIndex);
@@ -399,6 +397,7 @@ canvas.addEventListener('mouseup', () => {
 
 function deleteAnnotationArea(area) {
     return function() {
+		saveRemind = true;
         console.log('deleteAnnotationArea: ' + area);
         _polygonAreaPoints[area].points = [];
         _polygonAreaPoints[area].checkbox = false;
@@ -457,6 +456,7 @@ function keydownDectect(e) {
 
         // if listen to shortcut key 'n', then finish the annotation
         if (e.keyCode === 78) {
+			saveRemind = true;
             isDrawing = false;
             _polygonAreaPoints[selectPolygonArea.value].points = points.slice(0);
             _polygonAreaPoints[selectPolygonArea.value].checkbox = true;
@@ -487,6 +487,7 @@ function keydownDectect(e) {
 
     // if listen to shortcut key 'c', then clear the annotation
     if (e.keyCode === 67) {
+		saveRemind = true;
         console.log('c ---- ');
         clearAnnotation();
         return;

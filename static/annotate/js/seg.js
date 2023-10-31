@@ -52,6 +52,7 @@ function UNetGetSeg() {
             _polygonAreaPoints['LV'].points = tmp;
             _polygonAreaPoints['LV'].checkbox = true;
             drawImage();
+			saveRemind = true;
         },
     })
 }
@@ -75,6 +76,7 @@ function viewClassify() {
             console.log(response);
             document.querySelector('#view_select').value = response['view'];
             view = response['view'];
+			saveRemind = true;
         },
     })
 }
@@ -108,6 +110,7 @@ function MedSAMGetSeg(prompt_bbox) {
             _polygonAreaPoints[selectPolygonArea.value].points = tmp;
             _polygonAreaPoints[selectPolygonArea.value].checkbox = true;
             drawImage();
+			saveRemind = true;
         },
 
     })
@@ -155,6 +158,7 @@ function EqualLAMSeg(params) {
                     _polygonAreaPoints['LAM'].points = tmp;
                     _polygonAreaPoints['LAM'].checkbox = true;
                     drawImage();
+					saveRemind = true;
                 }
 
             },
@@ -186,6 +190,7 @@ function EqualLAMSeg(params) {
                     _polygonAreaPoints['LAM'].points = tmp;
                     _polygonAreaPoints['LAM'].checkbox = true;
                     drawImage();
+					saveRemind = true;
                 }
 
             },
