@@ -9,3 +9,31 @@ input {
 	margin: 0.4rem;
 }
 
+select[disabled] ,input[type='checkbox'][disabled] ,button[disabled] {
+  background-color: #ccc;
+  color: #888;
+  cursor: not-allowed;
+}
+
+.trash-button {
+	background-color: #fff; /* 按钮背景颜色 */
+	color: #000; /* 按钮文字颜色 */
+	border-radius: 4px; /* 按钮圆角 */
+	/* padding: 5px 5px; /1* 按钮内边距 *1/ */
+	/* border: none; /1* 去掉按钮边框 *1/ */
+	cursor: pointer; /* 鼠标光标样式 */
+	height: 30;
+	width: 30;
+}
+
+.trash-button:hover {
+	background-color: #000;
+	color: #fff;
+}
+
+.trash-button:disabled {
+	background-color: #ccc;
+	color: #888;
+	cursor: not-allowed;
+}
+

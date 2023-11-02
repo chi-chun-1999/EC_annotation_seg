@@ -13,11 +13,12 @@ let change_frame = stop_frame;
 let frame_information = [];
 
 
-window.onload = initFrame;
+// window.onload = initFrame;
+addLoadEvent(initFrame);
 
 
 function initFrame() {
-    initCanvas();
+    // initCanvas();
     // createEmptyFramePolygonAreaPoints();
     createFramePolygonAreaPointsFromDatabase();
     // setFrameFromPolygonAreaPoints(ori_frame,change_frame);
@@ -43,6 +44,7 @@ function initFrame() {
 
     }
     drawImage();
+	// setInfoAreaSelectAndCheckboxStatus();
 }
 
 

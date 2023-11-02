@@ -12,7 +12,7 @@ const ctx = canvas.getContext('2d');
 const selectPolygonArea = document.getElementById('polygonArea');
 const scaleFactor = 1.05; // Adjust the scale factor as needed
 
-window.onload = initCanvas;
+// window.onload = initCanvas;
 
 
 
@@ -32,7 +32,7 @@ let _polygonAreaPoints = {
         points: [],
         color: 'rgb(255, 0, 0)',
         checkbox: false,
-        namel: '左心房心肌'
+        name: '左心房心肌'
     },
     'LA': {
         points: [],
@@ -78,10 +78,9 @@ let pointcolor = 'rgb(255,125,225)';
 let fillcolor = 'rgba(255, 0, 0, 0.5)';
 let editpointcolor = 'black';
 
-
+addLoadEvent(initCanvas);
 
 function initCanvas() {
-	
 	
 	createImage(django_data.image);
     // console.log('image.width: ' + image.width);
@@ -95,7 +94,7 @@ function initCanvas() {
     // ctx.fillStyle = canvasBackground;
     // ctx.fillRect(0, 0, canvas.width, canvas.height);
     // ctx.drawImage(image, 0, 0);
-    drawImage();
+    image.onload = drawImage;
     view = document.getElementById('view_select').value;
 	LAMSegMthChange();
 	
@@ -145,10 +144,10 @@ document.getElementById('saveAnnotation').addEventListener('click', saveAnnotati
 document.getElementById('getAnnotationFromUNet').addEventListener('click', getAnnotationFromUNet)
 
 // Function to delete the annotation
-document.getElementById('btn_delete_LV').addEventListener('click', deleteAnnotationArea('LV'));
-document.getElementById('btn_delete_LA').addEventListener('click', deleteAnnotationArea('LA'));
-document.getElementById('btn_delete_LVM').addEventListener('click', deleteAnnotationArea('LVM'));
-document.getElementById('btn_delete_LAM').addEventListener('click', deleteAnnotationArea('LAM'));
+// document.getElementById('btn_delete_LV').addEventListener('click', deleteAnnotationArea('LV'));
+// document.getElementById('btn_delete_LA').addEventListener('click', deleteAnnotationArea('LA'));
+// document.getElementById('btn_delete_LVM').addEventListener('click', deleteAnnotationArea('LVM'));
+// document.getElementById('btn_delete_LAM').addEventListener('click', deleteAnnotationArea('LAM'));
 
 // Function to change the view
 document.getElementById('view_select').addEventListener('change', viewChange);
@@ -786,45 +785,46 @@ function drawImage() {
         if (_polygonAreaPoints[key].checkbox != false) {
             drawArea(_polygonAreaPoints[key].points, _polygonAreaPoints[key].color, isTarget);
         }
-            showCurrentAnnotationCheckbox(key);
+            // showCurrentAnnotationCheckbox(key);
     }
+	setInfoAreaSelectAndCheckboxStatus();
 }
 
-document.getElementById('checkbox_LA').addEventListener('change', function() {
-    if (this.checked) {
-        _polygonAreaPoints['LA'].checkbox = true;
-    } else {
-        _polygonAreaPoints['LA'].checkbox = false;
-    }
-    drawImage();
-});
+// document.getElementById('checkbox_LA').addEventListener('change', function() {
+//     if (this.checked) {
+//         _polygonAreaPoints['LA'].checkbox = true;
+//     } else {
+//         _polygonAreaPoints['LA'].checkbox = false;
+//     }
+//     drawImage();
+// });
 
-document.getElementById('checkbox_LV').addEventListener('change', function() {
-    if (this.checked) {
-        _polygonAreaPoints['LV'].checkbox = true;
-    } else {
-        _polygonAreaPoints['LV'].checkbox = false;
-    }
-    drawImage();
-});
+// document.getElementById('checkbox_LV').addEventListener('change', function() {
+//     if (this.checked) {
+//         _polygonAreaPoints['LV'].checkbox = true;
+//     } else {
+//         _polygonAreaPoints['LV'].checkbox = false;
+//     }
+//     drawImage();
+// });
 
-document.getElementById('checkbox_LAM').addEventListener('change', function() {
-    if (this.checked) {
-        _polygonAreaPoints['LAM'].checkbox = true;
-    } else {
-        _polygonAreaPoints['LAM'].checkbox = false;
-    }
-    drawImage();
-});
+// document.getElementById('checkbox_LAM').addEventListener('change', function() {
+//     if (this.checked) {
+//         _polygonAreaPoints['LAM'].checkbox = true;
+//     } else {
+//         _polygonAreaPoints['LAM'].checkbox = false;
+//     }
+//     drawImage();
+// });
 
-document.getElementById('checkbox_LVM').addEventListener('change', function() {
-    if (this.checked) {
-        _polygonAreaPoints['LVM'].checkbox = true;
-    } else {
-        _polygonAreaPoints['LVM'].checkbox = false;
-    }
-    drawImage();
-});
+// document.getElementById('checkbox_LVM').addEventListener('change', function() {
+//     if (this.checked) {
+//         _polygonAreaPoints['LVM'].checkbox = true;
+//     } else {
+//         _polygonAreaPoints['LVM'].checkbox = false;
+//     }
+//     drawImage();
+// });
 
 
 
