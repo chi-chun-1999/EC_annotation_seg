@@ -22,14 +22,15 @@ function initFrame() {
     // createEmptyFramePolygonAreaPoints();
     createFramePolygonAreaPointsFromDatabase();
     // setFrameFromPolygonAreaPoints(ori_frame,change_frame);
-	if (frame_information[stop_frame]['view'] == '') {
-		frame_information[stop_frame]['view'] = '2ch';
-	}
+    if (frame_information[stop_frame]['view'] == '') {
+        frame_information[stop_frame]['view'] = '2ch';
+    }
 
 
     view = frame_information[stop_frame]['view'];
-	document.getElementById('view_select').value = view;
-	
+    document.getElementById('view_select').value = view;
+    document.getElementById('radio_' + view).checked = true;
+
 
     let area = ['LAM', 'LA', 'LVM', 'LV'];
     for (var i = 0; i < area.length; i++) {
@@ -44,7 +45,7 @@ function initFrame() {
 
     }
     drawImage();
-	// setInfoAreaSelectAndCheckboxStatus();
+    // setInfoAreaSelectAndCheckboxStatus();
 }
 
 
@@ -91,6 +92,8 @@ function setFrameFromPolygonAreaPoints(ori_frame, change_frame) {
         // _polygonAreaPoints[area[i]]['points'] = frame_polygonAreaPoints[change_frame][area[i]];
         // frame_polygonAreaPoints[ori_frame][area[i]] = Object.assign([], tmp_polygon_point);
         // _polygonAreaPoints[area[i]]['points'] = Object.assign([], frame_polygonAreaPoints[change_frame][area[i]]);
+        //
+
 
         frame_information[ori_frame]['polygon_area'][area[i]] = Object.assign([], tmp_polygon_point);
         _polygonAreaPoints[area[i]]['points'] = Object.assign([], frame_information[change_frame]['polygon_area'][area[i]]);
@@ -104,6 +107,14 @@ function setFrameFromPolygonAreaPoints(ori_frame, change_frame) {
 
     }
 
+
+}
+
+function setFrameView(ori_frame, change_frame) {
+	frame_information[ori_frame]['view'] = view;
+	view = frame_information[change_frame]['view'];
+	document.getElementById('view_select').value = view;
+	document.getElementById('radio_' + view).checked = true;
 }
 
 function frameRangeChange() {
@@ -113,6 +124,8 @@ function frameRangeChange() {
     change_frame = frame;
     document.getElementById('frame_num').value = frame;
     setFrameFromPolygonAreaPoints(ori_frame, change_frame);
+	setFrameView(ori_frame, change_frame);
+
     getFrame();
 }
 
@@ -123,6 +136,7 @@ function frameNumChange() {
     change_frame = frame;
     document.getElementById('frame_range').value = frame;
     setFrameFromPolygonAreaPoints(ori_frame, change_frame);
+	setFrameView(ori_frame, change_frame);
     saveFrame(ori_frame);
     getFrame();
 }
@@ -155,7 +169,7 @@ function getFrame() {
 
 
 function saveFrame(frame) {
-	saveRemind = false;
+    saveRemind = false;
 
 
     $.ajax({
@@ -194,7 +208,7 @@ window.addEventListener('beforeunload', function(event) {
         data: {
             'csrfmiddlewaretoken': '{{ csrf_token }}',
             'stop_frame': change_frame,
-			'task_index': task_index,
+            'task_index': task_index,
         },
         success: function(response) {
             console.log(response);
@@ -202,7 +216,7 @@ window.addEventListener('beforeunload', function(event) {
         },
         error: function(response) {
             // alert("error");
-			console.log("error");
+            console.log("error");
 
         }
 

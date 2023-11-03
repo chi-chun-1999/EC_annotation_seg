@@ -5,7 +5,8 @@
     Image annotation
 {% endblock title %}
 {% block content %}
-	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
     <link rel="stylesheet"
           href="{% static 'annotate/css/annotate.css' %}"
           type="text/css"
@@ -17,9 +18,8 @@
         <div class="container">
             <h2 class="center">Image annotation</h2>
             <!-- <p>Default range slider:</p> -->
-
-			<input type="range" id='frame_range' min=0 max={{image_num}} value={{stop_frame}}>
-			<input type="number" id="frame_num" name="frame_num" min=0 max={{image_num}} step=1 value={{stop_frame}}>
+            <input type="range" id='frame_range' min=0 max={{ image_num }} value={{ stop_frame }}>
+            <input type="number" id="frame_num" name="frame_num" min=0 max={{ image_num }} step=1 value={{ stop_frame }}>
             <div class="row">
                 <div class="col-2 border">
                     <div class="d-grid d-md-block">
@@ -63,36 +63,26 @@
                         <option value="3ch">A3C</option>
                         <option value="4ch">A4C</option>
                     </select>
+
+                    <fieldset>
+                        <legend>View</legend>
+                        <div>
+                            <input type="radio" id="radio_2ch" name="view_radio" value="2ch" checked />
+							<label for="A2C">A2C</label><br>
+
+                            <input type="radio" id="radio_3ch" name="view_radio" value="3ch" />
+                            <label for="A3C">A3C</label><br>
+
+                            <input type="radio" id="radio_4ch" name="view_radio" value="4ch" />
+                            <label for="A4C">A4C</label><br>
+
+                            <input type="radio" id="radio_other" name="view_radio" value="other" />
+                            <label for="Other">Other</label><br>
+                        </div>
+                    </fieldset>
+
                     <legend>分割資訊</legend>
-                    <!-- <div id="annotationCheckbox"></div> -->
-                    <!-- <div style='display:none' id='div_checkbox_LAM'> -->
-                    <!--     <input type="checkbox" name="LAM" id="checkbox_LAM"> -->
-                    <!--     <label for="LAM">左心房心肌</label> -->
-                    <!--     <input type="button" id="btn_delete_LAM" value="delete"> -->
-                    <!--     <br> -->
-                    <!-- </div> -->
-                    <!-- <div style='display:none' id='div_checkbox_LA'> -->
-                    <!--     <input type="checkbox" name="LA" id="checkbox_LA"> -->
-                    <!--     <label for="LA">左心房</label> -->
-                    <!--     <input type="button" id="btn_delete_LA" value="delete"> -->
-                    <!--     <br> -->
-                    <!-- </div> -->
-                    <!-- <div style='display:none' id='div_checkbox_LVM'> -->
-                    <!--     <input type="checkbox" name="LVM" id="checkbox_LVM"> -->
-                    <!--     <label for="LVM">左心室心肌</label> -->
-                    <!--     <input type="button" id="btn_delete_LVM" value="delete"> -->
-                    <!--     <br> -->
-                    <!-- </div> -->
-                    <!-- <div style='display:none' id='div_checkbox_LV'> -->
-                    <!--     <input type="checkbox" name="LV" id="checkbox_LV"> -->
-                    <!--     <label for="LA">左心室</label> -->
-                    <!--     <input type="button" id="btn_delete_LV" value="delete"> -->
-                    <!--     <br> -->
-                    <!-- </div> -->
-					<!-- <hr> -->
-
-					<div id="area-dropdowns-container"></div>
-
+                    <div id="area-dropdowns-container"></div>
                 </div>
             </div>
         </div>
@@ -106,16 +96,14 @@
     </div>
     <fieldset>
     </fieldset>
-	<script src="{%static 'annotate/js/common.js' %}"></script>
+    <script src="{%static 'annotate/js/common.js' %}"></script>
     <script src="{%static 'annotate/js/script.js' %}" defer data-image="{{data}}"></script>
     <script src="{%static 'annotate/js/seg.js' %}"></script>
-
-	<script src="{%static 'annotate/js/frame.js' %}"
-				defer
-				data-task-index="{{task_index}}"
-				data-image-num="{{image_num}}"
-				data-stop-frame="{{stop_frame}}"
-				data-frame-information="{{frame_information}}"></script>
-	
-	<script src="{%static 'annotate/js/area_information.js'%}"></script>
+    <script src="{%static 'annotate/js/frame.js' %}"
+            defer
+            data-task-index="{{task_index}}"
+            data-image-num="{{image_num}}"
+            data-stop-frame="{{stop_frame}}"
+            data-frame-information="{{frame_information}}"></script>
+    <script src="{%static 'annotate/js/area_information.js'%}"></script>
 {% endblock content %}

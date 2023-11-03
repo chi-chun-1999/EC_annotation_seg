@@ -81,6 +81,7 @@ let editpointcolor = 'black';
 addLoadEvent(initCanvas);
 
 function initCanvas() {
+
 	
 	createImage(django_data.image);
     // console.log('image.width: ' + image.width);
@@ -150,9 +151,16 @@ document.getElementById('getAnnotationFromUNet').addEventListener('click', getAn
 // document.getElementById('btn_delete_LAM').addEventListener('click', deleteAnnotationArea('LAM'));
 
 // Function to change the view
-document.getElementById('view_select').addEventListener('change', viewChange);
+// document.getElementById('view_select').addEventListener('change', viewChange);
 
 document.getElementById('select_LAM_mth').addEventListener('change', LAMSegMthChange);
+
+const view_radio = document.getElementsByName('view_radio');
+for (var i = 0; i < view_radio.length; i++) {
+	view_radio[i].addEventListener('change', viewChangeRadio);
+}
+
+
 
 
 // Event listeners for mouse actions
@@ -409,8 +417,15 @@ function viewChange() {
 
     view = document.getElementById('view_select').value;
     // console.log('view: ' + view);
+	console.log(document.querySelector('input[name="radio_view"]:checked').value);
 
 }
+
+function viewChangeRadio(value) {
+	// console.log('viewChangeRadio: ' + value.target.value);
+	view = value.target.value;
+}
+
 
 
 
@@ -559,7 +574,7 @@ function detectMouseInArea(x, y, ismousedown = false) {
                     (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
                 if (intersect) isInside = !isInside;
             }
-            if (isInside) {
+            if (isInside && _polygonAreaPoints[key].checkbox == true) {
 
                 targetArea = key;
                 break;
