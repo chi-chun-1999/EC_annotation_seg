@@ -19,6 +19,7 @@ const scaleFactor = 1.05; // Adjust the scale factor as needed
 // const function_server_ip = '140.117.164.100';
 const function_server_ip = '192.168.195.98';
 let isDrawing = false;
+let isAddingKeypoint = false;
 let points = [];
 let isEditing = false;
 let saveRemind = false;
@@ -54,6 +55,25 @@ let _polygonAreaPoints = {
     },
 }
 
+let key_points = {
+	'times':0,
+	'start_point': {
+		'x': null,
+		'y': null,
+		'color': 'rgb(255, 0, 0)',
+	},
+	'end_point': {
+		'x': null,
+		'y': null,
+		'color': 'rgb(0, 255, 0)',
+	},
+	'apical_point': {
+		'x': null,
+		'y': null,
+		'color': 'rgb(0, 0, 255)',
+	},
+}
+
 let polygonAreaColor = {
     'LAM': 'rgb(255, 0, 0)',
     'LA': 'rgb(0, 255, 0)',
@@ -86,15 +106,6 @@ function initCanvas() {
 	createImage(django_data.image);
     // console.log('image.width: ' + image.width);
     let area = selectPolygonArea.value;
-    // console.log('area: ' + area);
-    // console.log('image.height: ' + image.height);
-    // console.log('canvas.width: ' + canvas.width);
-    // console.log('canvas.height: ' + canvas.height);
-    // canvas.width = image.width;
-    // canvas.height = image.height;
-    // ctx.fillStyle = canvasBackground;
-    // ctx.fillRect(0, 0, canvas.width, canvas.height);
-    // ctx.drawImage(image, 0, 0);
     image.onload = drawImage;
     view = document.getElementById('view_select').value;
 	LAMSegMthChange();
@@ -120,16 +131,6 @@ function createImage(image_64encode) {
 
 
 
-// Function to start annotation
-// document.getElementById('startAnnotation').addEventListener('click', () => {
-//     isDrawing = true;
-//     isEditing = false;
-//     points = [];
-//     // ctx.clearRect(0, 0, canvas.width, canvas.height);
-//     // ctx.drawImage(image, 0, 0);
-//     drawImage();
-//     canvas.style.cursor = 'crosshair'; // Set crosshair cursor when drawing starts
-// });
 
 document.getElementById('startAnnotation').addEventListener('click', startAnnotation);
 
@@ -142,13 +143,9 @@ document.getElementById('clearAnnotation').addEventListener('click', clearAnnota
 // Function to save the annotation (you can implement your save logic here)
 document.getElementById('saveAnnotation').addEventListener('click', saveAnnotation);
 
-document.getElementById('getAnnotationFromUNet').addEventListener('click', getAnnotationFromUNet)
+// document.getElementById('getAnnotationFromUNet').addEventListener('click', getAnnotationFromUNet)
+document.getElementById('btn_keypoint').addEventListener('click', addKeyPoint);
 
-// Function to delete the annotation
-// document.getElementById('btn_delete_LV').addEventListener('click', deleteAnnotationArea('LV'));
-// document.getElementById('btn_delete_LA').addEventListener('click', deleteAnnotationArea('LA'));
-// document.getElementById('btn_delete_LVM').addEventListener('click', deleteAnnotationArea('LVM'));
-// document.getElementById('btn_delete_LAM').addEventListener('click', deleteAnnotationArea('LAM'));
 
 // Function to change the view
 // document.getElementById('view_select').addEventListener('change', viewChange);
@@ -197,6 +194,7 @@ canvas.addEventListener('mousedown', (e) => {
         }
 
         if (e.button === 1) {
+			console.log('middle mouse button');
             isDrawing = false;
             drawImage();
             return;
@@ -208,17 +206,48 @@ canvas.addEventListener('mousedown', (e) => {
         });
         drawImage();
         // console.log('mousdown ---- ')
-    } else if (isDrawingMedSAM) {
+    } 
+	else if (isAddingKeypoint) {
+		console.log('isAddingKeypoint');
+		if (key_points['times'] == 0) {
+			key_points['start_point']['x'] = absolute_x_img;
+			key_points['start_point']['y'] = absolute_y_img;
+			key_points['times'] = 1;
+		}
+		else if (key_points['times'] == 1) {
+			key_points['end_point']['x'] = absolute_x_img;
+			key_points['end_point']['y'] = absolute_y_img;
+			key_points['times'] = 0;
+			isAddingKeypoint = false;
+			canvas.style.cursor = 'auto';
+		}
+		else if (key_points['times'] == 2) {
+			// temporary stop adding keypoint
+			// key_points['apical_point']['x'] = absolute_x_img;
+			//
+			// key_points['apical_point']['y'] = absolute_y_img;
+			// key_points['times'] = 3;
+			isAddingKeypoint = false;
+			key_points['times'] = 0;
+		}
+		drawImage();
+	}
+
+
+	else if (isDrawingMedSAM) {
         console.log('isDrawingMedSAM');
         points = [];
+		// for first point
         points.push({
             x: absolute_x_img,
             y: absolute_y_img
         });
+		// for second point, but this wiil be changed in mousemove and mouseup
         points.push({
             x: absolute_x_img,
             y: absolute_y_img
         });
+		console.log('points: ' + points);
         drawImage();
     }
 
@@ -427,10 +456,6 @@ function viewChangeRadio(value) {
 }
 
 
-
-
-
-
 // addEventListener for keyboard actions
 // if listen to shortcut key 'n', then finish the annotation
 // if listen to shortcut key 'c', then clear the annotation
@@ -448,6 +473,20 @@ function startAnnotation() {
     drawImage();
     canvas.style.cursor = 'crosshair'; // Set crosshair cursor when drawing starts
     console.log('startAnnotation ---- ');
+}
+
+function addKeyPoint() {
+
+	isAddingKeypoint = true;
+	isDrawing = false;
+
+	for (let key in key_points) {
+		key_points[key].x = null;
+		key_points[key].y = null;
+	}
+	canvas.style.cursor = 'crosshair';
+
+	console.log('addKeypoint');
 }
 
 function clearAnnotation() {
@@ -495,6 +534,15 @@ function keydownDectect(e) {
             // ctx.clearRect(0, 0, canvas.width, canvas.height);
             // ctx.drawImage(image, 0, 0);
         }
+		if (isAddingKeypoint) {
+			isAddingKeypoint = false;
+			key_points['times'] = 0;
+			for (let key in key_points) {
+				key_points[key].x = null;
+				key_points[key].y = null;
+			}
+			drawImage();
+		}
         canvas.style.cursor = 'auto';
         return;
     }
@@ -618,15 +666,9 @@ function drawNewPolygon() {
 
         draw_point = calculateDrawPointsPosition(points[0]);
 
-        // ctx.moveTo(points[0].x, points[0].y);
-        // ctx.moveTo(draw_x, draw_y);
         ctx.moveTo(draw_point.x, draw_point.y);
 
         for (let i = 0; i < points.length; i++) {
-            // draw_x = (points[i].x+imgTopX)*scale;
-            // draw_y = (points[i].y+imgTopY)*scale;
-            // ctx.lineTo(points[i].x, points[i].y);
-            // ctx.lineTo(draw_x, draw_y);
             draw_point = calculateDrawPointsPosition(points[i]);
             ctx.lineTo(draw_point.x, draw_point.y);
         }
@@ -640,10 +682,6 @@ function drawNewPolygon() {
 
         for (let i = 0; i < points.length; i++) {
             ctx.beginPath();
-            // draw_x = (points[i].x+imgTopX)*scale;
-            // draw_y = (points[i].y+imgTopY)*scale;
-            // ctx.arc(points[i].x, points[i].y, 3, 0, 2 * Math.PI);
-            // ctx.arc(draw_x, draw_y, 3, 0, 2 * Math.PI);
             draw_point = calculateDrawPointsPosition(points[i]);
             ctx.arc(draw_point.x, draw_point.y, 3, 0, 2 * Math.PI);
 
@@ -662,15 +700,23 @@ function drawNewPolygon() {
 
         for (let i = 0; i < points.length; i++) {
             ctx.beginPath();
-            // draw_x = (points[i].x+imgTopX)*scale;
-            // draw_y = (points[i].y+imgTopY)*scale;
-            // ctx.arc(points[i].x, points[i].y, 3, 0, 2 * Math.PI);
-            // ctx.arc(draw_x, draw_y, 3, 0, 2 * Math.PI);
             draw_point = calculateDrawPointsPosition(points[i]);
             ctx.arc(draw_point.x, draw_point.y, 3, 0, 2 * Math.PI);
             ctx.fill();
         }
     }
+	if (isAddingKeypoint) {
+		ctx.fillStyle = editpointcolor;
+		for (let key in key_points) {
+			if (key_points[key].x != null) {
+				ctx.beginPath();
+				draw_point = calculateDrawPointsPosition(key_points[key]);
+				ctx.arc(draw_point.x, draw_point.y, 3, 0, 2 * Math.PI);
+				ctx.fillStyle = linecolor;
+				ctx.fill();
+			}
+		}
+	}
 
     if (isDrawingMedSAM) {
 
@@ -802,45 +848,17 @@ function drawImage() {
         }
             // showCurrentAnnotationCheckbox(key);
     }
+	for (let key in key_points) {
+		if (key_points[key].x != null) {
+			ctx.beginPath();
+			draw_point = calculateDrawPointsPosition(key_points[key]);
+			ctx.arc(draw_point.x, draw_point.y, 3, 0, 2 * Math.PI);
+			ctx.fillStyle = key_points[key].color;
+			ctx.fill();
+		}
+	}
 	setInfoAreaSelectAndCheckboxStatus();
 }
-
-// document.getElementById('checkbox_LA').addEventListener('change', function() {
-//     if (this.checked) {
-//         _polygonAreaPoints['LA'].checkbox = true;
-//     } else {
-//         _polygonAreaPoints['LA'].checkbox = false;
-//     }
-//     drawImage();
-// });
-
-// document.getElementById('checkbox_LV').addEventListener('change', function() {
-//     if (this.checked) {
-//         _polygonAreaPoints['LV'].checkbox = true;
-//     } else {
-//         _polygonAreaPoints['LV'].checkbox = false;
-//     }
-//     drawImage();
-// });
-
-// document.getElementById('checkbox_LAM').addEventListener('change', function() {
-//     if (this.checked) {
-//         _polygonAreaPoints['LAM'].checkbox = true;
-//     } else {
-//         _polygonAreaPoints['LAM'].checkbox = false;
-//     }
-//     drawImage();
-// });
-
-// document.getElementById('checkbox_LVM').addEventListener('change', function() {
-//     if (this.checked) {
-//         _polygonAreaPoints['LVM'].checkbox = true;
-//     } else {
-//         _polygonAreaPoints['LVM'].checkbox = false;
-//     }
-//     drawImage();
-// });
-
 
 
 

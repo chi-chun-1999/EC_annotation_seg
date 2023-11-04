@@ -76,9 +76,6 @@ class AnnotationAdmin:
             export_json['task_id'] = task_id
             export_json['data'] = export_data
 
-
-        
-
         elif mode == 'view':
             view = kargs['view']
             annotation_data_list = AnnotationData.objects.filter(view=view)

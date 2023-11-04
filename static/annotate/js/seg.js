@@ -121,11 +121,20 @@ function EqualLAMSeg(params) {
     console.log('EqualLAMSeg', params);
 	lam_seg_value = document.getElementById('LAM_seg_value').value
 
+	key_points_list = []
+	for (let i in key_points) {
+		if (key_points[i].x !=null && key_points[i].y !=null) {
+			key_points_list.push([key_points[i].x, key_points[i].y])
+		}
+	}
+
+	console.log(key_points_list);
+
     data = {
         'img': image.src,
         'LA': _polygonAreaPoints['LA'].points,
         'LV': _polygonAreaPoints['LV'].points,
-        'key_points': [],
+        'key_points': key_points_list,
 		'lam_seg_value': lam_seg_value,
     }
 
@@ -143,9 +152,9 @@ function EqualLAMSeg(params) {
                 'Content-Type': 'application/json'
             },
             success: function(response) {
-                console.log(response);
+                // console.log(response);
                 if (response['success'] == false) {
-                    alert('EqualLAMSeg failed');
+                    alert('EqualLAMSeg failed.\n'+response['message']);
                     return;
                 } else if (response['success'] == true) {
                     tmp = []
@@ -175,9 +184,9 @@ function EqualLAMSeg(params) {
                     'Content-Type': 'application/json'
                 },
             success: function(response) {
-                console.log(response);
+                // console.log(response);
                 if (response['success'] == false) {
-                    alert('EqualLAMSeg failed');
+                    alert('SnakeLAM failed.\n'+response['message']);
                     return;
                 } else if (response['success'] == true) {
                     tmp = []
