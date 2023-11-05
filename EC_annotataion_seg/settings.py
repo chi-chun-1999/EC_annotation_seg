@@ -24,6 +24,7 @@ SECRET_KEY = 'django-insecure-&@6cep)kl-56%q^t=@d-p((gw5z_-fzh59p^_d_j5_m9-=i9)2
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
+# DEBUG = False
 
 ALLOWED_HOSTS = ['*']
 LOGIN_URL = '/login'
@@ -34,6 +35,7 @@ AUTHENTICATION_BACKENDS = [
 ]
 
 TASK_STORE_ROOT_PATH = '/mnt/chi-chun/data1t/EC_ann/task'
+
 
 
 
@@ -181,3 +183,4 @@ STATICFILES_DIRS = [
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 X_FRAME_OPTIONS = 'SAMEORIGIN'
+

@@ -13,6 +13,9 @@ from django.contrib.auth.views import LoginView, LogoutView
 from .task_admin import TaskAdmin, TaskImageAdmin
 from .models import AnnotationData, Polygons, Task
 import json
+from django.template import RequestContext
+
+
 
 
 
@@ -25,6 +28,10 @@ def home(request):
     if request.user.is_authenticated:
         username = request.user.username
     return render(request, 'annotate/index.html', locals())
+
+def handler404(request):
+    return render(request, '404.html', locals())
+
 
 @login_required
 def GetTaskList(request):
