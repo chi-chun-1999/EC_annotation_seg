@@ -16,7 +16,7 @@ const scaleFactor = 1.05; // Adjust the scale factor as needed
 
 
 
-// const function_server_ip = '140.117.164.100';
+// const function_server_ip = '140.xxx.xxx.xxx';
 const function_server_ip = '192.168.195.98';
 let isDrawing = false;
 let isAddingKeypoint = false;

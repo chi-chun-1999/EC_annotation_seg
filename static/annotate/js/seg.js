@@ -11,6 +11,12 @@ document.getElementById('btn_MedSAM').addEventListener('click', function() {
 
 let isDrawingMedSAM = false;
 
+function errorAlert() {
+	var email = 'justin11223350@gmail.com'
+	alert('ERROR!!!\n'+'連線失敗，請連絡管理員\n'+'Email: '+email);
+}
+
+
 function UNetGetSeg() {
     // console.log('testPostImage');
     // var imageDataURL = image.toDataURL('image/png');
@@ -54,6 +60,15 @@ function UNetGetSeg() {
             drawImage();
 			saveRemind = true;
         },
+		error: function(jqxHR, status, error) {
+			if (jqxHR.status == 400) {
+				errorAlert();
+			}
+			else{
+				errorAlert();
+			}
+
+		}
     })
 }
 
@@ -78,6 +93,16 @@ function viewClassify() {
             view = response['view'];
 			saveRemind = true;
         },
+		error: function(jqxHR, status, error) {
+			if (jqxHR.status == 400) {
+				errorAlert();
+			}
+			else{
+				errorAlert();
+				
+			}
+		}
+			
     })
 }
 
@@ -112,6 +137,15 @@ function MedSAMGetSeg(prompt_bbox) {
             drawImage();
 			saveRemind = true;
         },
+		error: function(jqxHR, status, error) {
+			if (jqxHR.status == 400) {
+				errorAlert();
+			}
+			else{
+				errorAlert();
+				
+			}
+		}
 
     })
 }
@@ -171,6 +205,15 @@ function EqualLAMSeg(params) {
                 }
 
             },
+		error: function(jqxHR, status, error) {
+			if (jqxHR.status == 400) {
+				errorAlert();
+			}
+			else{
+				errorAlert();
+				
+			}
+		}
 
         })
 
@@ -203,6 +246,15 @@ function EqualLAMSeg(params) {
                 }
 
             },
+		error: function(jqxHR, status, error) {
+			if (jqxHR.status == 400) {
+				errorAlert();
+			}
+			else{
+				errorAlert();
+				
+			}
+		}
 
         })
 	}
