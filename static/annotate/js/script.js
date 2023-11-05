@@ -116,7 +116,7 @@ selectPolygonArea.addEventListener('change', choosePolygonArea);
 
 function choosePolygonArea() {
     annoateArea = selectPolygonArea.value;
-    console.log('area: ' + annoateArea);
+    // console.log('area: ' + annoateArea);
 
 }
 
@@ -235,7 +235,7 @@ canvas.addEventListener('mousedown', (e) => {
 
 
 	else if (isDrawingMedSAM) {
-        console.log('isDrawingMedSAM');
+        // console.log('isDrawingMedSAM');
         points = [];
 		// for first point
         points.push({
@@ -247,7 +247,7 @@ canvas.addEventListener('mousedown', (e) => {
             x: absolute_x_img,
             y: absolute_y_img
         });
-		console.log('points: ' + points);
+		// console.log('points: ' + points);
         drawImage();
     }
 
@@ -489,6 +489,15 @@ function addKeyPoint() {
 	console.log('addKeypoint');
 }
 
+function resetKeyPoint() {
+	isAddingKeypoint = false;
+	key_points['times'] = 0;
+	for (let key in key_points) {
+		key_points[key].x = null;
+		key_points[key].y = null;
+	}
+}
+
 function clearAnnotation() {
     isDrawing = false;
     isEditing = false;
@@ -535,12 +544,7 @@ function keydownDectect(e) {
             // ctx.drawImage(image, 0, 0);
         }
 		if (isAddingKeypoint) {
-			isAddingKeypoint = false;
-			key_points['times'] = 0;
-			for (let key in key_points) {
-				key_points[key].x = null;
-				key_points[key].y = null;
-			}
+			resetKeyPoint();
 			drawImage();
 		}
         canvas.style.cursor = 'auto';

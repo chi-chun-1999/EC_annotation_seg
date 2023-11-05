@@ -125,6 +125,7 @@ function frameRangeChange() {
     document.getElementById('frame_num').value = frame;
     setFrameFromPolygonAreaPoints(ori_frame, change_frame);
 	setFrameView(ori_frame, change_frame);
+	resetKeyPoint();
 
     getFrame();
 }
@@ -138,6 +139,7 @@ function frameNumChange() {
     setFrameFromPolygonAreaPoints(ori_frame, change_frame);
 	setFrameView(ori_frame, change_frame);
     saveFrame(ori_frame);
+	resetKeyPoint();
     getFrame();
 }
 

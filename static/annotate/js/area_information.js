@@ -103,7 +103,7 @@ function generateAreaDropdowns() {
 			_polygonAreaPoints[area_name]['checkbox'] = false;
 
 			// console.log(event.target.id);
-			console.log(area_name);
+			// console.log(area_name);
 			drawImage();
 		});
 

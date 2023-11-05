@@ -152,7 +152,7 @@ function MedSAMGetSeg(prompt_bbox) {
 
 
 function EqualLAMSeg(params) {
-    console.log('EqualLAMSeg', params);
+    // console.log('EqualLAMSeg', params);
 	lam_seg_value = document.getElementById('LAM_seg_value').value
 
 	key_points_list = []
@@ -162,7 +162,7 @@ function EqualLAMSeg(params) {
 		}
 	}
 
-	console.log(key_points_list);
+	// console.log(key_points_list);
 
     data = {
         'img': image.src,
@@ -173,7 +173,7 @@ function EqualLAMSeg(params) {
     }
 
     LAM_seg_meth = document.getElementById('select_LAM_mth').value;
-    console.log(LAM_seg_meth);
+    // console.log(LAM_seg_meth);
 
 
     if (LAM_seg_meth == 'EqualLAM') {
