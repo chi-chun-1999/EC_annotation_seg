@@ -15,7 +15,7 @@ RUN pip install opencv-python-headless
 
 
 # Path: /web
-COPY . .
+# COPY . .
 
 copy ./docker-entrypoint.sh /docker-entrypoint.sh
 ENTRYPOINT ["/bin/bash","/docker-entrypoint.sh"]
