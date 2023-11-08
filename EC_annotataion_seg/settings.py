@@ -23,8 +23,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-&@6cep)kl-56%q^t=@d-p((gw5z_-fzh59p^_d_j5_m9-=i9)2'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-# DEBUG = False
+# DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['*']
 LOGIN_URL = '/login'
@@ -175,8 +175,9 @@ STATICFILES_DIRS = [
     BASE_DIR / 'static/annotate',
     BASE_DIR / 'static/annotate/js',
     BASE_DIR / 'static/annotate/css',
-    BASE_DIR / 'static/annotate/img',
     ]
+
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field

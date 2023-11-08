@@ -15,18 +15,24 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path,include
+from django.urls import path,include,re_path
 from annotate import views
 
 from annotate.dash_apps import simpleexample
 from django.contrib.auth.views import LoginView
 
+from django.conf import settings
+from django.conf.urls.static import static
+
 
 urlpatterns = [
     path('',views.home),
     # path('login/',views.CustomLoginView.as_view(),name='login'),
-    path('login/',LoginView.as_view(template_name='registration/login.html'),name='login'),
-    path('logout/',views.CustomLogoutView.as_view(),name='logout'),
+    # path('login/',LoginView.as_view(template_name='registration/login.html'),name='login'),
+    re_path(r'^login/$', LoginView.as_view(template_name='registration/login.html'), name='login'),
+    # path('logout/',views.CustomLogoutView.as_view(),name='logout'),
+    re_path(r'^logout/$', views.CustomLogoutView.as_view(), name='logout'),
+    # re_path(r'^admin/$', admin.site.urls),
     path('admin/', admin.site.urls),
     path('django_plotly_dash/', include('django_plotly_dash.urls')),
     path('readImage/2ch',views.readImage2ch,name='readImage'),
@@ -36,5 +42,5 @@ urlpatterns = [
     path('readImage/task/<int:task_index>/<int:frame_num>',views.AnnotationImage,name='readImage'),
     path('getAnnotationFromUNet/',views.getAnnotationFromUNet,name='getAnnotationFromUNet'),
     path('saveAnnotation/',views.saveAnnotation,name='saveAnnotation'),
-    path('tasks/',views.GetTaskList,name='tasks'),
-]
+    re_path(r'^tasks/$',views.GetTaskList,name='tasks'),
+]+ static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
