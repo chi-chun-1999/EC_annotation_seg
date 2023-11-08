@@ -1,7 +1,7 @@
 FROM python:3.10
 
 # Path: /app
-WORKDIR /web
+WORKDIR /app
 
 # Path: /web/requirements.txt
 COPY requirements.txt .
@@ -24,5 +24,5 @@ EXPOSE 8000
 
 # Path: /web
 #CMD python manage.py runserver
-# CMD uwsgi --ini uwsgi.ini
+CMD uwsgi -d --ini uwsgi.ini && tail -f /dev/null
 
