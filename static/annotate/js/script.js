@@ -107,7 +107,7 @@ function initCanvas() {
     // console.log('image.width: ' + image.width);
     let area = selectPolygonArea.value;
     image.onload = drawImage;
-    view = document.getElementById('view_select').value;
+    // view = document.getElementById('view_select').value;
 	LAMSegMthChange();
 	
 }
@@ -442,13 +442,13 @@ function deleteAnnotationArea(area) {
     }
 }
 
-function viewChange() {
+// function viewChange() {
 
-    view = document.getElementById('view_select').value;
-    // console.log('view: ' + view);
-	console.log(document.querySelector('input[name="radio_view"]:checked').value);
+//     view = document.getElementById('view_select').value;
+//     // console.log('view: ' + view);
+// 	console.log(document.querySelector('input[name="radio_view"]:checked').value);
 
-}
+// }
 
 function viewChangeRadio(value) {
 	// console.log('viewChangeRadio: ' + value.target.value);
@@ -569,6 +569,7 @@ function keydownDectect(e) {
 		for (var i = 0; i < area.length; i++){
 			frame_information[current_frame]['polygon_area'][area[i]] = Object.assign([], _polygonAreaPoints[area[i]]['points']);
 		}
+		frame_information[current_frame]['view'] = view;
 
 		saveFrame(current_frame);
 		return;
@@ -587,23 +588,33 @@ function keydownDectect(e) {
 function saveAnnotation() {
     isDrawing = false;
     // get the annotation points
-    var annotationPoints = JSON.stringify(_polygonAreaPoints);
+    // var annotationPoints = JSON.stringify(_polygonAreaPoints);
     // console.log('annotationPoints: ' + annotationPoints);
 
-    $.ajax({
-        type: "POST",
-        url: "/saveAnnotation/",
-        data: {
-            'annotationPoints': annotationPoints,
-            'csrfmiddlewaretoken': '{{ csrf_token }}'
-        },
-        success: function(response) {
-            // alert(response);
-        },
-        error: function(response) {
-            // alert(response);
-        }
-    });
+    // $.ajax({
+    //     type: "POST",
+    //     url: "/saveAnnotation/",
+    //     data: {
+    //         'annotationPoints': annotationPoints,
+    //         'csrfmiddlewaretoken': '{{ csrf_token }}'
+    //     },
+    //     success: function(response) {
+    //         // alert(response);
+    //     },
+    //     error: function(response) {
+    //         // alert(response);
+    //     }
+    // });
+    	var current_frame = document.getElementById('frame_num').value;
+		console.log('ctrl+s ---- '+current_frame);
+
+		let area = ['LAM', 'LA', 'LVM', 'LV'];
+		for (var i = 0; i < area.length; i++){
+			frame_information[current_frame]['polygon_area'][area[i]] = Object.assign([], _polygonAreaPoints[area[i]]['points']);
+		}
+		frame_information[current_frame]['view'] = view;
+
+		saveFrame(current_frame);
 }
 
 function detectMouseInArea(x, y, ismousedown = false) {

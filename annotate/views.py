@@ -76,6 +76,7 @@ def showAnnotationImage(request,task_index):
 
             stop_frame = task.stop_frame
             task_index = task.id
+            task_name = task.name
             
             image = task_image_admin.get_image(stop_frame)
             ioBuffer = io.BytesIO()

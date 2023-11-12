@@ -3,8 +3,16 @@ const image_num = document.currentScript.dataset.imageNum;
 const frame_information_from_database = document.currentScript.dataset.frameInformation;
 const stop_frame = document.currentScript.dataset.stopFrame;
 
-document.getElementById('frame_range').oninput = frameRangeChange
-document.getElementById('frame_num').onchange = frameNumChange
+const frame_num_element = document.getElementById('frame_num');
+const frame_range_element = document.getElementById('frame_range');
+
+frame_num_element.onchange = frameNumChange;
+frame_range_element.oninput = frameRangeChange;
+
+// document.getElementById('frame_range').oninput = frameRangeChange
+// document.getElementById('frame_num').onchange = frameNumChange
+document.addEventListener('keyup',keyUpDetect);
+
 
 let frame_polygonAreaPoints = [];
 let ori_frame = stop_frame;
@@ -13,8 +21,46 @@ let change_frame = stop_frame;
 let frame_information = [];
 
 
+
+
 // window.onload = initFrame;
 addLoadEvent(initFrame);
+
+function keyUpDetect(event){
+	// press key "f"
+	if (event.keyCode == 70){
+		console.log("press f");
+
+		if (parseInt(frame_num_element.value) < parseInt(frame_num_element.max)){
+			frame_num_element.value = parseInt(frame_num_element.value) + 1;
+			frameNumChange();
+		}
+		else{
+			console.log('max frame',frame_num_element.max);
+			console.log('current frame',frame_num_element.value)
+			return;
+		}
+		
+
+	}
+	// press key "d"
+	if (event.keyCode == 68){
+
+
+		console.log("press d");
+
+		if (parseInt(frame_num_element.value) > parseInt(frame_num_element.min)){
+			frame_num_element.value = parseInt(frame_num_element.value) - 1;
+			frameNumChange();
+		}
+		else{
+			return;
+		}
+		
+	}
+}
+	
+
 
 
 function initFrame() {
@@ -28,7 +74,7 @@ function initFrame() {
 
 
     view = frame_information[stop_frame]['view'];
-    document.getElementById('view_select').value = view;
+    // document.getElementById('view_select').value = view;
     document.getElementById('radio_' + view).checked = true;
 
 
@@ -113,7 +159,7 @@ function setFrameFromPolygonAreaPoints(ori_frame, change_frame) {
 function setFrameView(ori_frame, change_frame) {
 	frame_information[ori_frame]['view'] = view;
 	view = frame_information[change_frame]['view'];
-	document.getElementById('view_select').value = view;
+	// document.getElementById('view_select').value = view;
 	document.getElementById('radio_' + view).checked = true;
 }
 
@@ -125,8 +171,8 @@ function frameRangeChange() {
     document.getElementById('frame_num').value = frame;
     setFrameFromPolygonAreaPoints(ori_frame, change_frame);
 	setFrameView(ori_frame, change_frame);
+	saveFrame(ori_frame);
 	resetKeyPoint();
-
     getFrame();
 }
 
