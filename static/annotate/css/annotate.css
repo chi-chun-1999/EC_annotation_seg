@@ -37,3 +37,48 @@ select[disabled] ,input[type='checkbox'][disabled] ,button[disabled] {
 	cursor: not-allowed;
 }
 
+
+.button-function {
+  appearance: none;
+  background-color: transparent;
+  border: 2.5px solid #1A1A1A;
+  border-radius: 15px;
+  box-sizing: border-box;
+  color: #1A1A1A;
+  cursor: pointer;
+  display: inline-block;
+  font-family: Roobert,-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol";
+  font-size: 13px;
+  font-weight: 600;
+  line-height: normal;
+  margin: 3px;
+  min-height: 30px;
+  min-width: 0;
+  outline: none;
+  padding: 8px 5px;
+  text-align: center;
+  text-decoration: none;
+  transition: all 300ms cubic-bezier(.23, 1, 0.32, 1);
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  width: 100%;
+  will-change: transform;
+}
+
+.button-function:disabled {
+  pointer-events: none;
+}
+
+.button-function:hover {
+  color: #010101;
+  background-color: #eee;
+  box-shadow: rgba(0, 0, 0, 0.25) 0 6px 10px;
+  transform: translateY(-1px);
+}
+
+.button-function:active {
+  box-shadow: none;
+  transform: translateY(0);
+}
+
