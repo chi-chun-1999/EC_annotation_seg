@@ -1,0 +1,187 @@
+<!-- index.html -->
+{% extends 'base.html' %}
+{% block title %}
+    Tutorial
+{% endblock title %}
+{% block content %}
+    {% load static %}
+
+    <link rel="stylesheet"
+          href="{% static 'annotate/css/tutorial.css' %}"
+          type="text/css"
+          media="all">
+
+    <body>
+        <div class="container">
+            <div class="row justify-content-center">
+				<div class="col-8">
+
+                    <h1 id="ai-">AI 工具</h1>
+					<p> 本頁面主要是介紹 AI 工具的使用方式，目前提供的功能有：</p>
+					<ul>
+						<li><a href="#UNet">UNet</a></li>
+						<li><a href="#medsam">MedSAM</a></li>
+						<li><a href="#lam">LAM 的標記</a>
+							<ul>
+								<li><a href="#equallam">EqualLAM</a></li>
+								<li><a href="#ridge-morphological-snake-lam-segmentation">Ridge + Morphological Snake LAM Segmentation</a></li>
+							</ul>
+						</li>
+					</ul>
+
+					<h2 id="UNet" class="anchor" >
+						UNet
+					</h2>
+                    <p>
+                        這個工具主要是使用 <a href="https://www.creatis.insa-lyon.fr/Challenge/camus/">CAMUS dataset</a>，並使用 UNet 架構訓練出來的模型，這個工具主要是根據右上角選取的 View 使用對應的UNet模型來預測左心房與左心室，使用方式為按下 <strong>UNet</strong>  的按扭後，則會將現在的標記影像傳至後台進行運算，運算完的結果會回傳至瀏覽器上顯示。
+                    </p>
+                    <ol>
+                        <li>選取本張圖片的 View</li>
+                        <li>
+                            接按下左邊  <strong>UNet 的按扭</strong> ，因為使用這個功能需要大量的計算，所以使用上需要等待幾秒才可以得到回傳的標記點。
+                            <br>
+                            <br>
+                            <img src="{% static 'annotate/images/Pasted%20image%2020231113213456.png' %}"
+                                 alt=""
+                                 width="600">
+                            <br>
+                            <br>
+                        </li>
+                    </ol>
+                    <h3 id="">完整操作</h3>
+                            <br>
+                    <p>
+                        <img src="{% static 'annotate/images/螢幕錄製%202023-11-13%20下午9.26.29.gif' %}"
+                             alt=""
+                             width="600">
+                            <br>
+                    </p>
+                    <p>
+                        <strong>p.s. 不過 CAMUS 的資料集與高醫的資料集，因為影像的解析度與畫質不同，所以在進行預測上可能會有不準確的問題</strong>
+                    </p>
+					<h2 id="medsam" class="anchor">
+						MedSAM
+					</h2>
+                    <p>
+                        因為 CAMUS 資料集所訓練出來的 UNet 模型，可能會無法順利預測 LA 與 LV 的 ROI，因此 MedSAM 影像分割技術是另一個替代方案，而這個技術是由大量不同目標與模態的醫學影像所訓練出來的模型，與UNet模型不同的是使用者需給定提示的 Bouding Box 才可以得到對應的影像分割結果。
+                    </p>
+                    <ol>
+                        <li>選定標記的區域。</li>
+                        <li>
+                            按下 <strong>MedSAM</strong> 的按扭，此時在標記區域滑鼠會呈現十字形。
+                            <br>
+							<br>
+                            <img src="{% static 'annotate/images/Pasted%20image%2020231113215903.png' %}"
+                                 alt=""
+                                 width="600">
+							<br>
+							<br>
+                        </li>
+                        <li>
+                            框選標記區域的 Bounding Box 後，即會回傳至後台進行運算，並將預測的結果回傳至瀏覽器。
+							<br>
+							<br>
+                            <img src="{% static 'annotate/images/Pasted%20image%2020231113220048.png' %}"
+                                 alt=""
+                                 width="600">
+                        </li>
+                    </ol>
+                    <h3 id="">完整操作</h3>
+                    <p>
+							<br>
+                        <img src="{% static 'annotate/images/螢幕錄製%202023-11-13%20下午9.55.55.gif' %}"
+                             alt=""
+                             width="600">
+                        <br>
+							<br>
+                        <strong>p.s. MedSAM 主要是用來補助 UNet 上面預測 LA 與 LV 的不足，所以如果要拿標記LAM或LVM將無法得到好的結果</strong>
+                    </p>
+                    <h2 id="lam" class="anchor">LAM 的標記</h2>
+                    <p>
+                        由於以上的方式皆無法順利地標記 左心房心肌，為此提供了兩項解決方案，分別為 EqulLAM（等寬的左心房心肌）與 Ridge + Morphological Snake LAM Segmentation。<strong>（請注意在使用這項功能時必須先標記左心房與左心室）</strong>
+                    </p>
+                    <h3 id="equallam" class="anchor">EqualLAM</h3>
+                    <p>主要是根據 左心房、左心室與給定的心肌寬度，依據左心房內壁進一步計算左心房心肌的分割區域。</p>
+                    <ol>
+                        <li>
+                            先確定已經標記左心房與左心室，之所以給定這兩個區域主要是用作計算 Key points（詳細說明請見下面的解說）
+                            <br>
+                            <br>
+                            <img src="{% static 'annotate/images/Pasted%20image%2020231113225917.png' %}"
+                                 alt=""
+                                 width="600">
+                            <br>
+                            <br>
+                        </li>
+                        <li>
+                            選擇使用 <strong>Equal LAM</strong> 的方法。
+                            <br>
+                            <br>
+                            <img src="{% static 'annotate/images/Pasted%20image%2020231113233819.png' %}"
+                                 alt=""
+                                 width="600">
+                            <br>
+                            <br>
+                        </li>
+                        <li>調整左心房心肌的寬度。</li>
+                        <li>
+                            按下 <strong>LAM Seg</strong> 的按扭即可得到左心房心肌的分割區域。
+                            <br>
+                            <br>
+                            <img src="{% static 'annotate/images/Pasted%20image%2020231113233854.png' %}"
+                                 alt=""
+                                 width="600">
+                            <br>
+                            <br>
+                        </li>
+                    </ol>
+                    <h4 id="">完整操作</h4>
+					<br>
+                    <p>
+                        <img src="{% static 'annotate/images/螢幕錄製%202023-11-13%20下午10.57.04.gif' %}"
+                             alt=""
+                             width="600">
+                    </p>
+                    <h3 id="ridge-morphological-snake-lam-segmentation" class="anchor">Ridge + Morphological Snake LAM Segmentation</h3>
+                    <p>
+                        這個方法是參考 <a href="https://ieeexplore.ieee.org/document/9261387">IEEE Xplore</a> 的論文後所做的改良，主要的目的是想進一步透過影像的方法來找出 左心房心肌的分割區域。使用時需給定左心房、左心室與Morphological Snake 演算法的迭代次數，最後計算出 左心房心肌的分割區域。
+                    </p>
+                    <ol>
+                        <li>
+                            先確定已經標記左心房與左心室，之所以給定這兩個區域主要是用作計算 Key points（詳細說明請見下面的解說）
+                            <br>
+                            <img src="{% static 'annotate/images/Pasted%20image%2020231113225917.png' %}"
+                                 alt=""
+                                 width="600">
+                        </li>
+                        <li>
+                            選擇使用 <strong>Snake LAM</strong> 的方法。
+                            <br>
+                            <img src="{% static 'annotate/images/Pasted%20image%2020231113233633.png' %}"
+                                 alt=""
+                                 width="600">
+                        </li>
+                        <li>調整Morphological Snake 演算法的迭代次數。</li>
+                        <li>
+                            按下 <strong>LAM Seg</strong> 的按扭即可得到左心房心肌的分割區域。
+                            <br>
+                            <img src="{% static 'annotate/images/Pasted%20image%2020231113233716.png' %}"
+                                 alt=""
+                                 width="600">
+                        </li>
+                    </ol>
+                    <p>
+                    <h3 id="">完整操作</h3>
+                        <img src="{% static 'annotate/images/螢幕錄製%202023-11-13%20下午11.32.04.gif' %}"
+                             alt=""
+                             width="600">
+                    </p>
+
+				</div>
+            </div>
+        </div>
+    </body>
+</div>
+</div>
+<br>
+{% endblock content %}

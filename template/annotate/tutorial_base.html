@@ -1,0 +1,182 @@
+<!-- index.html -->
+{% extends 'base.html' %}
+{% block title %}
+    Tutorial
+{% endblock title %}
+{% block content %}
+    {% load static %}
+
+    <link rel="stylesheet"
+          href="{% static 'annotate/css/tutorial.css' %}"
+          type="text/css"
+          media="all">
+
+    <body>
+        <div class="container">
+            <div class="row justify-content-center">
+				<div class="col-8">
+					<h1> 基本操作</h1>
+                    <p>本頁面將介紹基本的操作，包含：</p>
+                    <ul>
+                        <li><a href="#base_annotation">基本影像標記功能</a></li>
+                        <ul>
+                            <li><a href="#base_annotation_add">新增標記點</a></li>
+                            <li><a href="#base_annotation_delete">刪除標記點</a></li>
+                            <ul>
+                                <li><a href="#base_annotation_delete_one">刪除標記區域上的標記點</a></li>
+                                <li><a href="#base_annotation_delete_area">刪除整個標記區域</a></li>
+                                <li><a href="#base_annotation_delete_all">刪除所有的標記區域</a></li>
+                            </ul>
+                            <li><a href="#base_annotation_edit">編輯標記點</a></li>
+							<li><a href="#change-frame">切換下一張的影像</a></li>
+							<li><a href="#save-annotation">資料點儲存</a></li>
+                        </ul>
+                    </ul>
+                    
+					<h2 id="base_annotation" class="anchor" href="#base_annotation">
+							<span class="octicon octicon-link">基本影像標記功能</span>
+					</h2>
+                    <p>由於是標記軟體，所以提供了一些基本的 Polygon 標記功能，例如新增標記點、編輯標記點與刪除標記點……等等。</p>
+					<h3 id="base_annotation_add" class="anchor" href="base_annotation_add">
+						<!-- <a id="base_annotation_add" class="anchor" href="#base_annotation_add" aria-hidden="true"> -->
+							<span class="octicon octicon-link">新增標記點</span>
+						</a>
+					</h3>
+                    <ol>
+                        <li>首先點選要進行標記的區域。</li>
+                        <li>
+                            接著按下 <strong>Start Annotation</strong>（或按下快捷鍵 「<strong>S</strong>」）開始標記。
+                        </li>
+                        <br>
+                        <img src="{% static 'annotate/images/Pasted%20image%2020231113194749.png' %}"
+                             alt="新增標記點"
+                             width="600">
+                        <br>
+                        <br>
+                    </ol>
+                    <ol start="3">
+                        <li>開始標記後，會發現滑鼠呈現十字形，並點選滑鼠左鍵即可開始標記。</li>
+                        <li>
+                            結束標記後，按下快捷鍵 <strong>n</strong> 即完成標記。
+                        </li>
+                        <br>
+                        <img src="{% static 'annotate/images/螢幕錄製%202023-11-13%20下午8.13.38.gif' %}"
+                             alt="標記"
+                             width="600">
+                        <br>
+                    </ol>
+                    <p>
+                        <strong>p.s. 標記時按下 「ESC」取消標記</strong>
+                    </p>
+						<h3 id="base_annotation_delete" class="anchor" href="base_annotation_delete">
+						<!-- <a id="base_annotation_delete" class="anchor" href="#base_annotation_delete" aria-hidden="true"> -->
+							<span class="octicon octicon-link"> 刪除標記點 </span>
+						</a>
+					</h3>
+					<h4 id="base_annotation_delete_one" class="anchor" href="base_annotation_delete_one">
+						
+						<!-- <a id="base_annotation_delete_one" class="anchor" href="#base_annotation_delete_one" aria-hidden="true"> -->
+							<span class="octicon octicon-link"> 刪除標記區域上的標記點 </span>
+						</a>
+
+						</h4>
+                    <p>
+                        按下「<strong>alt+滑鼠左鍵點選刪除的點</strong>」（Mac 請按 <strong>opt+滑鼠左鍵</strong>） 可刪除標記區域上的其中一個標記點
+                    </p>
+                    <br>
+                    <img src="{% static 'annotate/images/螢幕錄製%202023-11-13%20下午8.28.17.gif' %}"
+                         alt="刪除標記點"
+                         width="600">
+                    <br>
+                    <br>
+					<h4 id="base_annotation_delete_area" class="anchor" href="base_annotation_delete_area">
+						<!-- <a id="base_annotation_delete_area" class="anchor" href="#base_annotation_delete_area" aria-hidden="true"> -->
+							<span class="octicon octicon-link"> 刪除整個標記區域 </span>
+						</a>
+						</h4>
+                    <p>
+                        按下每個區域旁的 <strong>垃圾桶 icon</strong> 即可刪除標記區域。
+                    </p>
+                    <br>
+                    <img src="{% static 'annotate/images/螢幕錄製%202023-11-13%20下午8.41.26.gif' %}"
+                         alt="刪除標記區域"
+                         width="600">
+                    <br>
+                    <br>
+						<h4 id="base_annotation_delete_all" class="anchor" href="base_annotation_delete_all">
+						<!-- <a id="base_annotation_delete_all" class="anchor" href="#base_annotation_delete_all" aria-hidden="true"> -->
+							<span class="octicon octicon-link"> 刪除所有的標記區域 </span>
+						</a>
+
+					</h4>
+                    <p>
+                        按下 旁邊的 <strong>Clear Annotation</strong> 或是按下 <strong>快捷鍵「c」</strong> 即可刪除所有的標記點
+                    </p>
+                    <br>
+                    <p>
+                        <img src="{% static 'annotate/images/螢幕錄製%202023-11-13%20下午8.48.50.gif' %}"
+                             alt=""
+                             width="600">
+                    </p>
+                    <br>
+                    <br>
+					<h3 id="base_annotation_edit" class="anchor" href="base_annotation_edit">
+
+						<!-- <a id="base_annotation_edit" class="anchor" href="#base_annotation_edit" aria-hidden="true"> -->
+							<span class="octicon octicon-link"> 編輯標記點 </span>
+						</a>
+
+					</h3>
+                    <p>將滑鼠移動到要編輯的標記點上，按下左鍵並拖移即可移動標記點。</p>
+                    <p>
+                        <img src="{% static 'annotate/images/螢幕錄製%202023-11-13%20下午9.08.58.gif' %}"
+                             alt=""
+                             width="600">
+                    </p>
+
+                    <h2 id="change-frame" class="anchor">切換下一張的影像</h2>
+                    <ul>
+                        <li>
+                            <p>
+                                如果要切換下一張影像可以按下上方的數字框來切換前一張影像或後一張影像。
+                                <br>
+                                <br>
+                                <img src="{% static 'annotate/images/Pasted%20image%2020231123202150.png' %}"
+                                     alt=""
+                                     width="600">
+                            </p>
+                        </li>
+                        <li>
+                            <p>
+                                除此之外，為了方便性本支程式有另外提供快捷鍵，按下 <strong>f</strong> 會切換到後一張影像，按下 <strong>d</strong> 則切換到前一張影像。
+                                <br>
+                                <br>
+                                <img src="{% static 'annotate/images/Pasted%20image%2020231123202434.png' %}"
+                                     alt=""
+                                     width="600">
+                                <br>
+                            </p>
+                        </li>
+                    </ul>
+                    <h3 id="-">完整操作</h3>
+                    <p>
+                        <br>
+                        <img src="{% static 'annotate/images/螢幕錄製%202023-11-23%20下午8.17.49.gif' %}"
+                             alt=""
+                             width="600">
+                    </p>
+
+                    <h2 id="save-annotation" class="anchor">資料點儲存</h2>
+                    <p>
+                        在本程式中，切換影像後標記資料將自動保存至資料庫。此外，您還可透過工具列旁的「<strong>Save annotation</strong>」按鈕或按下快捷鍵 <strong>ctrl+s</strong> 主動儲存標記資料。
+                    </p>
+
+
+				</div>
+            </div>
+        </div>
+    </body>
+</div>
+</div>
+<br>
+{% endblock content %}

@@ -175,6 +175,7 @@ STATICFILES_DIRS = [
     BASE_DIR / 'static/annotate',
     BASE_DIR / 'static/annotate/js',
     BASE_DIR / 'static/annotate/css',
+    BASE_DIR / 'static/annotate/images',
     ]
 
 # STATIC_ROOT = BASE_DIR / 'staticfiles'

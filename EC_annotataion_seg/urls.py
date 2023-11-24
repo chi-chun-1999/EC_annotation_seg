@@ -16,13 +16,15 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path,include,re_path
-from annotate import views
+from annotate import views, tutorial_view
+
 
 from annotate.dash_apps import simpleexample
 from django.contrib.auth.views import LoginView
 
 from django.conf import settings
 from django.conf.urls.static import static
+
 
 
 urlpatterns = [
@@ -43,4 +45,9 @@ urlpatterns = [
     path('getAnnotationFromUNet/',views.getAnnotationFromUNet,name='getAnnotationFromUNet'),
     path('saveAnnotation/',views.saveAnnotation,name='saveAnnotation'),
     re_path(r'^tasks/$',views.GetTaskList,name='tasks'),
+    path('tutorial/',tutorial_view.tutorial,name='tutorial'),
+    path('tutorial/base',tutorial_view.tutorial_base,name='tutorial_base'),
+    path('tutorial/ai',tutorial_view.tutorial_ai,name='tutorial_ai'),
+    path('tutorial/key_points',tutorial_view.tutorial_key_points,name='tutorial_key_points'),
+    path('tutorial/login_task',tutorial_view.tutorila_login_task,name='tutorial_login_task'),
 ]+ static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
