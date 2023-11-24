@@ -32,12 +32,12 @@
                         <thead>
                             <tr>
                                 <th style="text-align:center">
-                                    <img src="{% static 'annotate/images/Pasted%20image%2020231123184827.png' %}"
+                                    <img src="{% static 'annotate/images/Pasted-image-20231123184827.png' %}"
                                          alt=""
                                          width="400">
                                 </th>
                                 <th style="text-align:center">
-                                    <img src="{% static 'annotate/images/Pasted%20image%2020231123184835.png' %}"
+                                    <img src="{% static 'annotate/images/Pasted-image-20231123184835.png' %}"
                                          alt=""
                                          width="400">
                                 </th>
@@ -54,7 +54,7 @@
                     <p>然而為了標記的方便性，程式的預設上是標記完左心室與左心房後，會自動計算 Key points 的位置，這也是為什麼前面提到必須要標記左心房與左心室的原因。</p>
                     <p>而自動計算 Key points 的方法主要是計算左心室與左心房polygons上每一點彼此之間的距離，當距離小於 2 時，將左心房上的點視為 key points 的候選點（下圖中紅色的點即為候選點）。</p>
                     <p>
-                        <img src="{% static 'annotate/images/Pasted%20image%2020231123191956.png' %}"
+                        <img src="{% static 'annotate/images/Pasted-image-20231123191956.png' %}"
                              alt=""
                              width="400">
                     </p>
@@ -62,7 +62,7 @@
                         計算完後進一步計算 x 軸最左與最右的候選點，將其視為 key point1 與 key point2。
                         <br>
                         <br>
-                        <img src="{% static 'annotate/images/Pasted%20image%2020231123192304.png' %}"
+                        <img src="{% static 'annotate/images/Pasted-image-20231123192304.png' %}"
                              alt=""
                              width="400">
                     </p>
@@ -71,7 +71,7 @@
                     </p>
                     <p>
                         <br>
-                        <img src="{% static 'annotate/images/Pasted%20image%2020231123193145.png' %}"
+                        <img src="{% static 'annotate/images/Pasted-image-20231123193145.png' %}"
                              alt=""
                              width="600">
                     </p>
@@ -81,7 +81,7 @@
                     </p>
                     <p>
                         <br>
-                        <img src="{% static 'annotate/images/Pasted%20image%2020231123194218.png' %}"
+                        <img src="{% static 'annotate/images/Pasted-image-20231123194218.png' %}"
                              alt=""
                              width="600">
                     </p>
@@ -91,7 +91,8 @@
                             在左邊工具列中選擇 <strong>Add Key point</strong>。
                             <br>
                             <br>
-                            <img src="{% static 'annotate/images/Pasted%20image%2020231123200414.png' %}"
+                            <img src="{% static 'annotate/images/Pasted-image-20231123200414.png' %}"
+							
                                  alt=""
                                  width="600">
                             <br>
@@ -101,7 +102,7 @@
                             接著按下滑鼠左鍵標記 <strong>Key point 1</strong> 與  <strong>Key point 2</strong> ，而程式的設定為第一個點為 Key point 1 （紅色標記點），第二個點為  Key point 2 （綠色標記點）。
                             <br>
                             <br>
-                            <img src="{% static 'annotate/images/Pasted%20image%2020231123201128.png' %}"
+                            <img src="{% static 'annotate/images/Pasted-image-20231123201128.png' %}"
                                  alt=""
                                  width="600">
                             <br>
@@ -111,7 +112,7 @@
                             透過手動標記 Key points，最後再應用 EqualLAM 後，明顯改善了對左心房心肌的標記，與第一步驟相比取得了顯著改善。
                             <br>
                             <br>
-                            <img src="{% static 'annotate/images/Pasted%20image%2020231123201539.png' %}"
+                            <img src="{% static 'annotate/images/Pasted-image-20231123201539.png' %}"
                                  alt=""
                                  width="600">
                             <br>
@@ -122,7 +123,7 @@
                     <p>
                         <br>
                         <br>
-                        <img src="{% static 'annotate/images/螢幕錄製%202023-11-23%20下午8.05.55.gif' %}"
+                        <img src="{% static 'annotate/images/video2023-11-23pm8.05.55.gif' %}"
                              alt=""
                              width="600">
                         <br>
