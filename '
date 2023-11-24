@@ -1,0 +1,217 @@
+<!-- index.html -->
+{% extends 'base.html' %}
+{% block title %}
+    Home
+{% endblock title %}
+{% block content %}
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+        }
+
+        .container {
+            padding: 50px;
+        }
+
+        h1 {
+            color: #555;
+        }
+
+        p {
+            color: #777;
+        }
+
+        .button {
+            background-color: #0074e4;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin-top: 20px;
+            cursor: pointer;
+        }
+    </style>
+    {% load static %}
+    <body>
+        <div class="container">
+            <h2>介紹</h2>
+            <p>
+                本網站為超音波心動圖的影像標記軟體，使用了 Django 的網頁框架來撰寫。影像標記是相當單調且耗時的任務，為了改善這些缺點，多數的影像標記軟體結合了一些 AI 的相關工具，提高影像標記的效率，像是 CVAT、Labelme 或 V7 等等。不過可惜的是目前市面上的這些標記軟體，所提供的 AI 工具大多是為了標記常見的影像，導致使用這些軟體無法有效的標記超音波心動圖。為此這款程式整合了預先訓練的深度學習模型、MedSAM 與 Morphological Snakes 影像分割演算法，旨在協助醫生節省標記超音波心動圖所需的時間，提高標記的效率。
+            </p>
+            <h2>登入</h2>
+            <p>因為本網站涵蓋了與研究相關的資料，故需成為本網站的註冊使用者，方可存取相關資訊。只需點擊下圖中紅色箭頭的部分，即可進入本網站進行影像標記。</p>
+            <img src="{% static 'annotate/images/Pasted%20image%2020231113155605.png' %}"
+                 alt="登入"
+                 width="600">
+            <h2>Tasks</h2>
+            <ol>
+                <li>登入之後，點選左上角的「Task」即可顯示所有的標記任務。</li>
+            </ol>
+            <img src="{% static 'annotate/images/Pasted%20image%2020231113161233.png' %}"
+                 alt="Tasks"
+                 width="600">
+            <br>
+            <img src="{% static 'annotate/images/Pasted%20image%2020231113161502.png' %}"
+                 alt="Tasks"
+                 width="600">
+            <p>此外，每一項任務中，包含了我事先篩選不同病人的超音波心動圖，每一項任務的說明如下：</p>
+            <ul>
+                <li>task1：事先利用 Echocardiography view 分類器，批量分類得到的心尖二腔室影像（Apical two chamber view）</li>
+                <li>task2：事先利用 Echocardiography view 分類器，批量分類得到的心尖三腔室影像（Apical three chamber view）</li>
+                <li>task3：事先利用 Echocardiography view 分類器，批量分類得到的心尖四腔室影像（Apical four chamber view）</li>
+            </ul>
+            <ol start="2">
+                <li>按下 「Open」後即可開始進行影像標記。</li>
+            </ol>
+            <img src="{% static 'annotate/images/Pasted%20image%2020231113163805.png' %}"
+                 alt="開始標記"
+                 width="600">
+            <h2>基本影像標記功能</h2>
+            <p>由於是標記軟體，所以提供了一些基本的 Polygon 標記功能，例如新增標記點、編輯標記點與刪除標記點……等等。</p>
+            <h3>新增標記點</h3>
+            <ol>
+                <li>首先點選要進行標記的區域。</li>
+                <li>
+                    接著按下 <strong>Start Annotation</strong>（或按下快捷鍵 「<strong>S</strong>」）開始標記。
+                </li>
+            </ol>
+            <img src="{% static 'annotate/images/Pasted%20image%2020231113194749.png' %}"
+                 alt="新增標記點"
+                 width="600">
+            <ol start="3">
+                <li>開始標記後，會發現滑鼠呈現十字形，並點選滑鼠左鍵即可開始標記。</li>
+                <li>
+                    結束標記後，按下快捷鍵 <strong>n</strong> 即完成標記。
+                </li>
+            </ol>
+            <img src="{% static 'annotate/images/螢幕錄製%202023-11-13%20下午8.13.38.gif' %}"
+                 alt="標記"
+                 width="600">
+            <p>
+                <strong>p.s. 標記時按下 「ESC」取消標記</strong>
+            </p>
+            <h3>刪除標記</h3>
+            <h4>刪除標記區域上的標記點</h4>
+            <p>
+                按下「<strong>alt+滑鼠左鍵點選刪除的點</strong>」（Mac 請按 <strong>opt+滑鼠左鍵</strong>） 可刪除標記區域上的其中一個標記點
+            </p>
+            <img src="{% static 'annotate/images/螢幕錄製%202023-11-13%20下午8.28.17.gif' %}"
+                 alt="刪除標記點"
+                 width="600">
+            <h4>刪除整個標記區域</h4>
+            <p>
+                按下每個區域旁的 <strong>垃圾桶 icon</strong> 即可刪除標記區域。
+            </p>
+            <img src="{% static 'annotate/images/螢幕錄製%202023-11-13%20下午8.41.26.gif' %}"
+                 alt="刪除標記區域"
+                 width="600">
+            <h4 id="-">刪除所有的標記區域</h4>
+            <p>
+                按下 旁邊的 <strong>Clear Annotation</strong> 或是按下 <strong>快捷鍵「c」</strong> 即可刪除所有的標記點
+            </p>
+            <p>
+			<img src="{% static 'annotate/images/螢幕錄製%202023-11-13%20下午8.48.50.gif'%}" alt="" width="600">
+            </p>
+            <h3 id="-">移動標記點</h3>
+            <p>將滑鼠移動到要編輯的標記點上，按下左鍵並拖移即可移動標記點。</p>
+            <p>
+			<img src="{% static 'annotate/images/螢幕錄製%202023-11-13%20下午9.08.58.gif'%}" alt=""width="600">
+            </p>
+            <h2 id="ai-">AI 工具</h2>
+            <h3 id="unet">UNet</h3>
+            <p>
+                這個工具主要是使用 <a href="https://www.creatis.insa-lyon.fr/Challenge/camus/">CAMUS dataset</a>，並使用 UNet 架構訓練出來的模型，這個工具主要是根據右上角選取的 View 使用對應的UNet模型來預測左心房與左心室，使用方式為按下 <strong>UNet</strong>  的按扭後，則會將現在的標記影像傳至後台進行運算，運算完的結果會回傳至瀏覽器上顯示。
+            </p>
+            <ol>
+                <li>選取本張圖片的 View</li>
+                <li>
+                    接按下左邊  <strong>UNet 的按扭</strong> ，因為使用這個功能需要大量的計算，所以使用上需要等待幾秒才可以得到回傳的標記點。
+					<br>
+					<img src="{% static 'annotate/images/Pasted%20image%2020231113213456.png'%}" alt=""width="600">
+                </li>
+            </ol>
+            <p>
+			<img src="{% static 'annotate/images/螢幕錄製%202023-11-13%20下午9.26.29.gif'%}" alt=""width="600">
+            </p>
+            <p>
+                <strong>p.s. 不過 CAMUS 的資料集與高醫的資料集，因為影像的解析度與畫質不同，所以在進行預測上可能會有不準確的問題</strong>
+            </p>
+            <h3 id="medsam">MedSAM</h3>
+            <p>
+                因為 CAMUS 資料集所訓練出來的 UNet 模型，可能會無法順利預測 LA 與 LV 的 ROI，因此 MedSAM 影像分割技術是另一個替代方案，而這個技術是由大量不同目標與模態的醫學影像所訓練出來的模型，與UNet模型不同的是使用者需給定提示的 Bouding Box 才可以得到對應的影像分割結果。
+            </p>
+            <ol>
+                <li>選定標記的區域。</li>
+                <li>
+                    按下 <strong>MedSAM</strong> 的按扭，此時在標記區域滑鼠會呈現十字形。
+					<br>
+					<img src="{% static 'annotate/images/Pasted%20image%2020231113215903.png'%}" alt=""width="600">
+                </li>
+                <li>
+                    框選標記區域的 Bounding Box 後，即會回傳至後台進行運算，並將預測的結果回傳至瀏覽器。
+					<img src="{% static 'annotate/images/Pasted%20image%2020231113220048.png'%}" alt=""width="600">
+                </li>
+            </ol>
+            <p>
+			<img src="{% static 'annotate/images/螢幕錄製%202023-11-13%20下午9.55.55.gif'%}" alt=""width="600">
+			<br>
+			
+                <strong>p.s. MedSAM 主要是用來補助 UNet 上面預測 LA 與 LV 的不足，所以如果要拿標記LAM或LVM將無法得到好的結果</strong>
+            </p>
+            <h3 id="lam-">LAM 的標記</h3>
+            <p>
+                由於以上的方式皆無法順利地標記 左心房心肌，為此提供了兩項解決方案，分別為 EqulLAM（等寬的左心房心肌）與 Ridge + Morphological Snake LAM Segmentation。<strong>（請注意在使用這項功能時必須先標記左心房與左心室）</strong>
+            </p>
+            <h4 id="equallam">EqualLAM</h4>
+            <p>主要是根據 左心房、左心室與給定的心肌寬度，依據左心房內壁進一步計算左心房心肌的分割區域。</p>
+            <ol>
+                <li>
+                    先確定已經標記左心房與左心室，之所以給定這兩個區域主要是用作計算 Key points（詳細說明請見下面的解說）
+                    <img src="Pasted%20image%2020231113225917.png" alt="">
+                </li>
+                <li>
+                    選擇使用 <strong>Equal LAM</strong> 的方法。
+                    <img src="Pasted%20image%2020231113233819.png" alt="">
+                </li>
+                <li>調整左心房心肌的寬度。</li>
+                <li>
+                    按下 <strong>LAM Seg</strong> 的按扭即可得到左心房心肌的分割區域。
+                    <img src="Pasted%20image%2020231113233854.png" alt="">
+                </li>
+            </ol>
+            <p>
+                <img src="螢幕錄製%202023-11-13%20下午10.57.04.gif" alt="">
+            </p>
+            <h4 id="ridge-morphological-snake-lam-segmentation">Ridge + Morphological Snake LAM Segmentation</h4>
+            <p>
+                這個方法是參考 <a href="https://ieeexplore.ieee.org/document/9261387">Left Ventricular Wall Motion Estimation by Active Polynomials for Acute Myocardial Infarction Detection | IEEE Journals &amp; Magazine | IEEE Xplore</a> 後所做的改良，主要的目的是想進一步透過影像的方法來找出 左心房心肌的分割區域。使用時需給定左心房、左心室與Morphological Snake 演算法的迭代次數，最後計算出 左心房心肌的分割區域。
+            </p>
+            <ol>
+                <li>
+                    先確定已經標記左心房與左心室，之所以給定這兩個區域主要是用作計算 Key points（詳細說明請見下面的解說）
+                    <img src="Pasted%20image%2020231113225917.png" alt="">
+                </li>
+                <li>
+                    選擇使用 <strong>Snake LAM</strong> 的方法。
+                    <img src="Pasted%20image%2020231113233633.png" alt="">
+                </li>
+                <li>調整Morphological Snake 演算法的迭代次數。</li>
+                <li>
+                    按下 <strong>LAM Seg</strong> 的按扭即可得到左心房心肌的分割區域。
+                    <img src="Pasted%20image%2020231113233716.png" alt="">
+                </li>
+            </ol>
+            <p>
+                <img src="螢幕錄製%202023-11-13%20下午11.32.04.gif" alt="">
+            </p>
+            <h2 id="key-point">Key Point</h2>
+            <p>前面提到</p>
+        </body>
+    </div>
+</div>
+<br>
+{% endblock content %}

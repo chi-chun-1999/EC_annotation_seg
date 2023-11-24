@@ -1,0 +1,35 @@
+<!-- index.html -->
+{% extends 'base.html' %}
+{% block title %}
+    Tutorial
+{% endblock title %}
+{% block content %}
+    {% load static %}
+    <link rel="stylesheet"
+          href="{% static 'annotate/css/tutorial.css' %}"
+          type="text/css"
+          media="all">
+    <body>
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-8">
+					<h2>介紹</h2>
+                    <p>
+                        本網站為超音波心動圖的影像標記軟體，使用了 Django 的網頁框架來撰寫。影像標記是相當單調且耗時的任務，為了改善這些缺點，多數的影像標記軟體結合了一些 AI 的相關工具，提高影像標記的效率，像是 CVAT、Labelme 或 V7 等等。不過可惜的是目前市面上的這些標記軟體，所提供的 AI 工具大多是為了標記常見的影像，導致使用這些軟體無法有效的標記超音波心動圖。為此這款程式整合了預先訓練的深度學習模型、MedSAM 與 Morphological Snakes 影像分割演算法，旨在協助醫生節省標記超音波心動圖所需的時間，提高標記的效率。
+                    </p>
+					<p>
+					以下將介紹本程式的操作方式，並說明如何使用 AI 工具來協助標記超音波心動圖。
+					<ul>
+						<li><a href="login_task">登入與Tasks</a></li>
+						<li><a href="base">基本操作</a></li>
+						<li><a href="ai">AI 工具</a></li>
+						<li><a href="key_points">Key points</a></li>
+
+
+					</ul>
+					</p>
+                </body>
+            </div>
+        </div>
+        <br>
+    {% endblock content %}
