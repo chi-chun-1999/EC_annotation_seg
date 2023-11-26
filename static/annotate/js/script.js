@@ -560,8 +560,9 @@ function keydownDectect(e) {
     }
 
 	// if listen to shortcut key ctrl+s, then save the annotation
-	if (e.ctrlKey && e.keyCode === 83) {
+	if (e.keyCode === 83 &&  e.ctrlKey) {
 		// get current frame
+		e.preventDefault();
     	var current_frame = document.getElementById('frame_num').value;
 		console.log('ctrl+s ---- '+current_frame);
 
