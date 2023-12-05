@@ -69,7 +69,7 @@ class AnnotationAdmin:
             task, source_data, image_list = task_admin.get_task(task_id)
             export_data = []
             for image_data in image_list:
-                annotation_data = AnnotationData.objects.filter(imagedata=image_data)[0]
+                annotation_data = AnnotationData.objects.filter(image_data=image_data)[0]
                 export_data.append(ExportAnnotationData(annotation_data).export())
 
             export_json['mode'] = 'task'
