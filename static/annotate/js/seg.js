@@ -1,8 +1,9 @@
 document.getElementById('btn_UNet').addEventListener('click', UNetGetSeg);
 
-document.getElementById('btn_viewClassify').addEventListener('click', viewClassify);
+// document.getElementById('btn_viewClassify').addEventListener('click', viewClassify);
 
 document.getElementById('btn_LAM_seg').addEventListener('click', EqualLAMSeg);
+document.getElementById('LAM_seg_value').addEventListener('change', EqualLAMSeg);
 
 document.getElementById('btn_MedSAM').addEventListener('click', function() {
     isDrawingMedSAM = true;
@@ -73,38 +74,38 @@ function UNetGetSeg() {
 }
 
 
-function viewClassify() {
-    console.log('viewClassify');
-    data = {
-        'img': image.src,
-        'view': view
-    }
+// function viewClassify() {
+//     console.log('viewClassify');
+//     data = {
+//         'img': image.src,
+//         'view': view
+//     }
 
-    $.ajax({
-        type: "POST",
-        url: "http://"+function_server_ip+":8080/viewClassification",
-        data: JSON.stringify(data),
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        success: function(response) {
-            console.log(response);
-            document.querySelector('#view_select').value = response['view'];
-            view = response['view'];
-			saveRemind = true;
-        },
-		error: function(jqxHR, status, error) {
-			if (jqxHR.status == 400) {
-				errorAlert();
-			}
-			else{
-				errorAlert();
+//     $.ajax({
+//         type: "POST",
+//         url: "http://"+function_server_ip+":8080/viewClassification",
+//         data: JSON.stringify(data),
+//         headers: {
+//             'Content-Type': 'application/json'
+//         },
+//         success: function(response) {
+//             console.log(response);
+//             document.querySelector('#view_select').value = response['view'];
+//             view = response['view'];
+// 			saveRemind = true;
+//         },
+// 		error: function(jqxHR, status, error) {
+// 			if (jqxHR.status == 400) {
+// 				errorAlert();
+// 			}
+// 			else{
+// 				errorAlert();
 				
-			}
-		}
+// 			}
+// 		}
 			
-    })
-}
+//     })
+// }
 
 
 function MedSAMGetSeg(prompt_bbox) {
