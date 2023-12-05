@@ -31,15 +31,30 @@ def handler404(request):
 
 @login_required
 def GetTaskList(request):
+    if request.user.is_superuser:
+        task_admin = TaskAdmin()
+        task_list, show_image_list = task_admin.get_task_list()
+        
+        show= [{'task':task_list[i],'show_image':show_image_list[i]} for i in range(len( task_list))]
+        return render(request, 'annotate/tasks.html', locals())
     if request.user.is_authenticated:
-        username = request.user.username
-    task_admin = TaskAdmin()
-    task_list, show_image_list = task_admin.get_task_list()
-    
-    show= [{'task':task_list[i],'show_image':show_image_list[i]} for i in range(len( task_list))]
-    
 
-    return render(request, 'annotate/tasks.html', locals())
+        unallow_task_id = [2,3,4]
+        username = request.user.username
+        task_admin = TaskAdmin()
+        task_list, show_image_list = task_admin.get_task_list()
+        
+        # show= [{'task':task_list[i],'show_image':show_image_list[i]} for i in range(len(task_list))]
+        show = []
+        for i in range(len(task_list)):
+            if task_list[i].id not in unallow_task_id:
+                show.append({'task':task_list[i],'show_image':show_image_list[i]})
+        
+
+        return render(request, 'annotate/tasks.html', locals())
+
+    # check user is admin
+        
 
 class CustomLoginView(LoginView):
     template_name = 'login.html'

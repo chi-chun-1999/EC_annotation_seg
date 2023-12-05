@@ -22,7 +22,10 @@ class TaskAdmin():
         for png in png_list:
             file_name = os.path.basename(png)
             research_id = file_name.split('_')[0]
-            frame_num_from_ori = file_name.split('_')[2].split('.')[0]
+            # frame_num_from_ori = file_name.split('_')[2].split('.')[0]
+            frame_num_from_ori = file_name.split('_')[2]
+            # print(frame_num_from_ori)
+            # print(file_name,research_id)
             image_data = ImageData.objects.create(file_name=file_name,research_id=research_id,frame_num_from_ori=frame_num_from_ori,source_data=self._source_data)
 
             image_data.save()
