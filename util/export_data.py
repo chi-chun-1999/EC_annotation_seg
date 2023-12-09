@@ -1,3 +1,9 @@
+"""
+usage:
+    python3 manage.py shell < export_data.py
+"""
+
+
 from annotate.annotation_admin import AnnotationAdmin
 import json
 from annotate.models import Task
