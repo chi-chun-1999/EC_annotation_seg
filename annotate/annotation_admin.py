@@ -6,6 +6,8 @@ from PIL import Image
 import json
 import numpy as np
 from django.conf import settings
+# import matplotlib.pyplot as plt
+
 
 class ExportAnnotationData:
     def __init__(self, annotation_data:AnnotationData) -> None:
@@ -123,13 +125,54 @@ class AnnotationAdmin:
         points = polygon.points
         polygon_array = np.array([[i['x'],i['y']] for i in points])
         polygon_array = polygon_array.reshape(-1,2)
-        np.save('polygon_array.npy', polygon_array)
+        # np.save('polygon_array.npy', polygon_array)
 
         imantics_polygons = ImanticsPolygons(polygon_array)
         mask = imantics_polygons.mask(384,384)
         
 
         return mask
+
+    def exportData2mask(self, export_json):
+        export_data = export_json['data']
+
+        for i in export_data:
+            image_path = i['image_path']
+            view = i['view']
+            polygons = i['polygons']
+            # mask = self._polygons2mask(polygons)
+
+            area_list = [2,0,1]
+            mask = np.zeros((384,384))
+
+
+            for i in area_list:
+
+                annot = polygons[i]
+                area = annot['area']
+                points = annot['points']
+                polygon_array = np.array(points)
+                polygon_array = polygon_array.reshape(-1,2)
+                # np.save('polygon_array.npy', polygon_array)
+
+                imantics_polygons = ImanticsPolygons(polygon_array)
+                if area == 'LV':
+                    mask = mask + imantics_polygons.mask(384,384)*1
+                elif area == 'LA':
+                    tmp_mask = imantics_polygons.mask(384,384)*2
+                    mask = mask + tmp_mask
+                elif area == 'RA':
+                    tmp_mask = imantics_polygons.mask(384,384)*3
+                    mask = mask + tmp_mask
+
+            print(mask.shape)
+            plt.imshow(mask)
+            break
+
+
+            # mask.save(image_path.replace('.jpg',f'_{view}.png'))
+        
+        # return mask
 
     
 
