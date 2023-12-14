@@ -97,6 +97,7 @@ let linecolor = 'rgb(255,125,225)';
 let pointcolor = 'rgb(255,125,225)';
 let fillcolor = 'rgba(255, 0, 0, 0.5)';
 let editpointcolor = 'black';
+let current_img_name = django_data.imgName;
 
 addLoadEvent(initCanvas);
 
@@ -107,6 +108,7 @@ function initCanvas() {
     // console.log('image.width: ' + image.width);
     let area = selectPolygonArea.value;
     image.onload = drawImage;
+	
     // view = document.getElementById('view_select').value;
 	LAMSegMthChange();
 	
@@ -142,6 +144,9 @@ document.getElementById('clearAnnotation').addEventListener('click', clearAnnota
 
 // Function to save the annotation (you can implement your save logic here)
 document.getElementById('saveAnnotation').addEventListener('click', saveAnnotation);
+
+// Function to download vidoe
+document.getElementById('btn_download').addEventListener('click', downloadVideo);
 
 // document.getElementById('getAnnotationFromUNet').addEventListener('click', getAnnotationFromUNet)
 document.getElementById('btn_keypoint').addEventListener('click', addKeyPoint);
@@ -955,4 +960,86 @@ function LAMSegMthChange() {
 	return 1;
 }
 
+
+// function downloadVideo(){
+// 	console.log("downloadVideo");
+// 	var progressBar = $("#progressBar");
+// 	var progressBarContainer = $("#progressBarContainer");
+// 	$.ajax({
+// 		type: "GET",
+// 		url: "/downloadVideo/",
+// 		xhrFields: {
+// 			responseType: 'blob'
+// 		},
+// 		data: {
+// 			'csrfmiddlewaretoken': '{{ csrf_token }}',
+// 			'task_index': task_index,
+// 		},
+// 		xhr: function() {
+// 			var xhr = new window.XMLHttpRequest();
+// 			xhr.addEventListener("progress", function(evt) {
+// 				if (evt.lengthComputable) {
+// 					var percentComplete = (evt.loaded / evt.total) * 100;
+// 					progressBar.val(percentComplete);
+// 				}
+// 			}, false);
+// 			return xhr;
+// 		},
+// 		success: function(data) {
+// 			console.log('Download');
+// 			var blob = new Blob([data]);
+// 			var link = document.createElement('a');
+// 			link.href = window.URL.createObjectURL(blob);
+// 			link.download = 'video.avi';  // 设置下载文件的名称
+// 			document.body.appendChild(link);
+// 			link.click();
+// 			document.body.removeChild(link);
+			
+
+
+// 			// alert("save success");
+// 		},
+// 		beforeSend: function() {
+// 			// 显示进度条容器
+// 			progressBarContainer.show();
+// 		}
+// 	});
+// }
+function downloadVideo(){
+	var video_name = current_img_name.split('_')[0]+'_'+current_img_name.split('_')[1];
+
+   // var videoId = 1;  // 替换为你要下载的视频的ID
+	var url = '/downloadVideo/'+task_index+'/'+video_name;
+		console.log('downloadLink: ' + url);
+		fetch(url)
+		.then(response => {
+			if (!response.ok) {
+				throw new Error('Network response was not ok');
+			}
+
+			var contentDisposition = response.headers.get('Content-Disposition');
+			return response.blob();
+		})
+		.then(blob => {
+			// 创建一个可下载的链接
+			var downloadLink = document.createElement('a');
+			var url = window.URL.createObjectURL(blob);
+			downloadLink.href = url;
+			// downloadLink.download = 'video.avi';  // 设置下载文件的名称
+			downloadLink.download = video_name+'.avi';  // 设置下载文件的名称
+
+			// 模拟点击链接来触发下载
+			document.body.appendChild(downloadLink);
+			downloadLink.click();
+
+			// 移除链接元素
+			document.body.removeChild(downloadLink);
+			
+			// 释放 URL 对象
+			window.URL.revokeObjectURL(url);
+		})
+		.catch(error => {
+			console.error('Fetch error:', error);
+		});
+}
 

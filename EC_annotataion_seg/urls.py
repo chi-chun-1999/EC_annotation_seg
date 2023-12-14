@@ -45,6 +45,7 @@ urlpatterns = [
     path('getAnnotationFromUNet/',views.getAnnotationFromUNet,name='getAnnotationFromUNet'),
     path('saveAnnotation/',views.saveAnnotation,name='saveAnnotation'),
     re_path(r'^tasks/$',views.GetTaskList,name='tasks'),
+    path('downloadVideo/<int:task_index>/<str:video_name>',views.downloadVideo,name='downloadVideo'),
     path('tutorial/',tutorial_view.tutorial,name='tutorial'),
     path('tutorial/base',tutorial_view.tutorial_base,name='tutorial_base'),
     path('tutorial/ai',tutorial_view.tutorial_ai,name='tutorial_ai'),
