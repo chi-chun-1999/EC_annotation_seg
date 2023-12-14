@@ -1,5 +1,6 @@
 """
 usage:
+    # go to the root directory of the django project
     python3 manage.py shell < export_data.py
 """
 
@@ -48,14 +49,19 @@ def exportDataWithMask(export_json,show_root_path,sub_dir):
         else:
             show_path = show_root_path+'/'+ export_file_name
 
-        area_list = [2,0,1]
+        area_list = [1,0,2]
         mask = np.zeros((384,384), dtype=np.uint8)
+        save_file = True
 
         for i in area_list:
             annot = polygons[i]
             area = annot['area']
             points = annot['points']
+            if len(points)==0:
+                save_file = False
+                break
             polygon_array = np.array(points)
+
             polygon_array = polygon_array.reshape(-1,2)
 
 
@@ -70,7 +76,9 @@ def exportDataWithMask(export_json,show_root_path,sub_dir):
             elif area == 'LAM':
                 show_img = imantics_polygons.draw(show_img, color=(0, 0, 255),thickness=1)
 
-        Image.fromarray(show_img).save(show_path)
+
+        if save_file:
+            Image.fromarray(show_img).save(show_path)
 
 
 
@@ -94,8 +102,10 @@ def exportData2mask(export_json,root_path):
             export_path = root_path+'/'+ export_file_name
         
 
-        area_list = [2,0,1]
+        area_list = [1,0,2]
         mask = np.zeros((384,384), dtype=np.uint8)
+        
+        save_file = True
 
 
         for i in area_list:
@@ -103,6 +113,9 @@ def exportData2mask(export_json,root_path):
             annot = polygons[i]
             area = annot['area']
             points = annot['points']
+            if len(points)==0:
+                save_file = False
+                break
             polygon_array = np.array(points)
             polygon_array = polygon_array.reshape(-1,2)
 
@@ -123,17 +136,18 @@ def exportData2mask(export_json,root_path):
 
         
         # print(mask.shape)
-        img = Image.fromarray(mask)
 
-        img.save(export_path)
+        if save_file:
+            img = Image.fromarray(mask)
+            img.save(export_path)
 
         # img.save('test_mask.png')
     # return mask
 
 
-task_id = 10
-mask_root_path = '/mnt/chi-chun/data1t/mask/chi-chun-task_test/'
-show_root_path = '/mnt/chi-chun/data1t/show_mask/chi-chun-task_test/'
+task_id = 12
+mask_root_path = '/mnt/EC_ann/mask/chi-chun-a2c/'
+show_root_path = '/mnt/EC_ann/show_mask/chi-chun-a2c/'
 task = Task.objects.get(id=task_id)
 source_data = task.source_data
 
@@ -143,7 +157,7 @@ source_data = task.source_data
 
 
 annotation_admin = AnnotationAdmin()
-export_data_str = annotation_admin.export(mode='task',task_id=10)
+export_data_str = annotation_admin.export(mode='task',task_id=task_id)
 
 export_data = json.loads(export_data_str)
 
