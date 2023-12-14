@@ -30,7 +30,7 @@ function UNetGetSeg() {
 
     $.ajax({
         type: "POST",
-        url: "http://"+function_server_ip+":8080/CAMUSegmentation",
+        url: "http://"+function_server_ip+":8080/KMUSegmentation",
         data: JSON.stringify(data),
         headers: {
             'Content-Type': 'application/json'
@@ -58,6 +58,16 @@ function UNetGetSeg() {
             }
             _polygonAreaPoints['LV'].points = tmp;
             _polygonAreaPoints['LV'].checkbox = true;
+
+            tmp = []
+            for (let key in response['lam_polygon_points']) {
+                tmp.push({
+                    x: response['lam_polygon_points'][key][0],
+                    y: response['lam_polygon_points'][key][1]
+                })
+            }
+            _polygonAreaPoints['LAM'].points = tmp;
+            _polygonAreaPoints['LAM'].checkbox = true;
             drawImage();
 			saveRemind = true;
         },

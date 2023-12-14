@@ -35,6 +35,8 @@ AUTHENTICATION_BACKENDS = [
 ]
 
 TASK_STORE_ROOT_PATH = '/mnt/chi-chun/data1t/EC_ann/task'
+TASK_VIDEO_STORE_ROOT_PATH = '/mnt/chi-chun/data1t/EC_ann/video'
+
 
 
 

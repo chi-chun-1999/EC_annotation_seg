@@ -38,6 +38,7 @@ urlpatterns = [
     path('readImage/task/<int:task_index>/<int:frame_num>',views.AnnotationImage,name='readImage'),
     path('getAnnotationFromUNet/',views.getAnnotationFromUNet,name='getAnnotationFromUNet'),
     path('saveAnnotation/',views.saveAnnotation,name='saveAnnotation'),
+    path('downloadVideo/<int:task_index>/<str:video_name>',views.downloadVideo,name='downloadVideo'),
     path('tasks/',views.GetTaskList,name='tasks'),
     path('tutorial/',tutorial_view.tutorial,name='tutorial'),
     path('tutorial/base',tutorial_view.tutorial_base,name='tutorial_base'),

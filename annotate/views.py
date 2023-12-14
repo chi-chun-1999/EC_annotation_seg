@@ -4,7 +4,7 @@ import plotly.graph_objects as go
 from PIL import Image
 import io
 import base64
-from django.http import JsonResponse
+from django.http import JsonResponse, FileResponse
 from django.views.decorators.csrf import csrf_exempt
 import numpy as np
 from imantics import Polygons, Mask
@@ -14,6 +14,9 @@ from .task_admin import TaskAdmin, TaskImageAdmin
 from .models import AnnotationData, Polygons, Task
 import json
 from django.template import RequestContext
+import mimetypes
+import os
+from django.conf import settings
 
 
 # Create your views here.
@@ -64,6 +67,32 @@ class CustomLogoutView(LogoutView):
     template_name = 'logout.html'
     redirect_authenticated_user = True
 
+@login_required
+@csrf_exempt
+def downloadVideo(request,task_index,video_name):
+    if request.user.is_authenticated:
+        username = request.user.username
+
+    if request.method == 'GET':
+        # print('Get downloadVideo')
+        task_name = Task.objects.get(id=task_index).source_data.file_dir
+        if settings.TASK_STORE_ROOT_PATH[-1] != '/':
+            video_path = settings.TASK_VIDEO_STORE_ROOT_PATH + '/' + task_name + '/' + video_name+'.avi'
+        else:
+            video_path = settings.TASK_VIDEO_STORE_ROOT_PATH + task_name + '/' + video_name+'.avi'
+
+        
+
+        file_name = video_name+'.avi'
+        content_disposition = 'attachment; filename={}'.format(file_name)
+        response = FileResponse(open(video_path,'rb'))
+        response['Content-Type'] = 'application/octet-stream'
+        response['Content-Disposition'] = content_disposition
+        response['Content-Length'] = os.path.getsize(video_path)
+        response['Accept-Ranges'] = 'bytes'
+        return response
+
+
 
 @login_required
 @csrf_exempt
@@ -83,13 +112,14 @@ def showAnnotationImage(request,task_index):
         
             task_image_admin = TaskImageAdmin(img_data_list)
 
-            image_num = len(img_data_list)
+            image_num = len(img_data_list)-1
 
             stop_frame = task.stop_frame
             task_index = task.id
             task_name = task.name
             
             image = task_image_admin.get_image(stop_frame)
+            img_name = img_data_list[stop_frame].file_name
             ioBuffer = io.BytesIO()
             image.save(ioBuffer, format='PNG')
             data = base64.b64encode(ioBuffer.getvalue()).decode('utf-8')
@@ -145,6 +175,8 @@ def AnnotationImage(request,task_index,frame_num):
 
         annotation_data = AnnotationData.objects.filter(image_data=img_data_list[frame_num])
         polygons_response = {}
+        img_name = img_data_list[frame_num].file_name
+        # print('img_name',img_name)
 
         # if len(annotation_data)!=0:
         #     polygons_from_dataset = Polygons.objects.filter(annotation_data=annotation_data[0])
@@ -157,7 +189,7 @@ def AnnotationImage(request,task_index,frame_num):
         #         for i in area:
         #             polygons_response[i] = []
 
-        return JsonResponse({'data':data,'polygons':polygons_response,'success':True})
+        return JsonResponse({'data':data,'polygons':polygons_response,'img_name':img_name,'success':True})
 
     if request.method == 'POST':
         try:
@@ -167,12 +199,14 @@ def AnnotationImage(request,task_index,frame_num):
 
             task_admin = TaskAdmin()
             task, source_data, img_data_list = task_admin.get_task(task_index)
+            img_name = img_data_list[frame_num].file_name
+            # print('img_name',img_name)
 
             annotation_data = AnnotationData.objects.filter(image_data=img_data_list[frame_num])
-            print(annotation_data)
-            print(len(img_data_list))
+            # print(annotation_data)
+            # print(len(img_data_list))
             if len(annotation_data) == 0:
-                print('create')
+                # print('create')
                 # print('------------------->')
                 # print('polygons-------->',json.loads(polygons))
                 # decode_polygons = json.loads(polygons_from_request)
@@ -185,10 +219,10 @@ def AnnotationImage(request,task_index,frame_num):
                     tmp_polygons = Polygons.objects.create(area=i,points=decode_polygons[i],annotation_data=tmp_annotation_data)
                     # print(tmp_polygons)
                     # print(area)
-                    print(i,'polygons-------->',decode_polygons[i])
+                    # print(i,'polygons-------->',decode_polygons[i])
 
             else:
-                print('update')
+                # print('update')
                 # print(view,key_points)
                 # print(annotation_data[0])
 
@@ -230,7 +264,7 @@ def readImage3ch(request):
         username = request.user.username
     
     image = Image.open('annotate/statics/kmu_3ch_test.jpg')
-    print(image.size)
+    # print(image.size)
     ioBuffer = io.BytesIO()
     image.save(ioBuffer, format='PNG')
     data = base64.b64encode(ioBuffer.getvalue()).decode('utf-8')

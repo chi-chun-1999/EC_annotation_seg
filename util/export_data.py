@@ -94,7 +94,7 @@ def exportData2mask(export_json,root_path):
             export_path = root_path+'/'+ export_file_name
         
 
-        area_list = [2,0,1]
+        area_list = [1,0,2]
         mask = np.zeros((384,384), dtype=np.uint8)
 
 

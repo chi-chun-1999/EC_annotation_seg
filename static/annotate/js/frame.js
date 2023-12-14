@@ -202,6 +202,7 @@ function getFrame() {
         success: function(response) {
             // console.log(response);
             var image_64encode = response['data'];
+			current_img_name = response['img_name'];
             createImage(image_64encode);
             // console.log("get frame: " + frame);
             image.onload = drawImage;
@@ -270,3 +271,4 @@ window.addEventListener('beforeunload', function(event) {
 
     })
 });
+

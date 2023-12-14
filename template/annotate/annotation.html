@@ -20,6 +20,9 @@
 			<div class="row">
 				<div class="d-flex justify-content-center">
 					<h2 class="">Annotation {{task_name}}</h2>
+					<!-- <div display="none" id="img_name"> -->
+					<!-- 	{{img_name}} -->
+					<!-- <div> -->
 				</div>
 			</div>
 
@@ -27,7 +30,7 @@
 			<div class="container">
 				<div class="row">
 					<div class="d-flex justify-content-center align-items-center">
-						<input type="range" id='frame_range' min=0 max={{ image_num }} value={{ stop_frame }}>
+						<input type="range" id='frame_range' min=0 max={{ image_num}} value={{ stop_frame }}>
 						<input type="number" id="frame_num" name="frame_num" min=0 max={{ image_num }} step=1 value={{ stop_frame }}>
 						<span class="fas fa-question-circle"
 							  data-toggle="tooltip"
@@ -89,6 +92,7 @@
                 </div>
                 <div class="col border">
                     <fieldset>
+                    	<button class="button-function" id="btn_download">Download File</button>
                         <legend>View</legend>
                         <div>
                             <input type="radio" id="radio_2ch" name="view_radio" value="2ch" checked />
@@ -121,7 +125,7 @@
     <fieldset>
     </fieldset>
     <script src="{%static 'annotate/js/common.js' %}"></script>
-    <script src="{%static 'annotate/js/script.js' %}" defer data-image="{{data}}"></script>
+	<script src="{%static 'annotate/js/script.js' %}" defer data-image="{{data}}" data-img-name="{{img_name}}"></script>
     <script src="{%static 'annotate/js/seg.js' %}"></script>
     <script src="{%static 'annotate/js/frame.js' %}"
             defer
