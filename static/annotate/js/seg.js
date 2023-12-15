@@ -17,8 +17,79 @@ function errorAlert() {
 	alert('ERROR!!!\n'+'連線失敗，請連絡管理員\n'+'Email: '+email);
 }
 
-
 function UNetGetSeg() {
+	var kmu_model = document.getElementById('UNet_method');
+
+	if (kmu_model.checked == true) {
+		UNetGetKMUSeg();
+	}
+	else {
+		UNetGetCAMUSeg();
+	}
+
+}
+
+	
+
+function UNetGetCAMUSeg() {
+    // console.log('testPostImage');
+    // var imageDataURL = image.toDataURL('image/png');
+
+    data = {
+        // 'csrfmiddlewaretoken': '{{ csrf_token }}',
+        'img': image.src,
+        'view': view
+    }
+
+    $.ajax({
+        type: "POST",
+        url: "http://"+function_server_ip+":8080/CAMUSegmentation",
+        data: JSON.stringify(data),
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        success: function(response) {
+            // alert(response);
+            // console.log(response['la_polygon_points']);
+            // console.log(response['la_polygon_points']);
+            tmp = []
+            for (let key in response['la_polygon_points']) {
+                tmp.push({
+                    x: response['la_polygon_points'][key][0],
+                    y: response['la_polygon_points'][key][1]
+                })
+            }
+            _polygonAreaPoints['LA'].points = tmp;
+            _polygonAreaPoints['LA'].checkbox = true;
+
+            tmp = []
+            for (let key in response['lv_polygon_points']) {
+                tmp.push({
+                    x: response['lv_polygon_points'][key][0],
+                    y: response['lv_polygon_points'][key][1]
+                })
+            }
+            _polygonAreaPoints['LV'].points = tmp;
+            _polygonAreaPoints['LV'].checkbox = true;
+
+            drawImage();
+			saveRemind = true;
+        },
+		error: function(jqxHR, status, error) {
+			if (jqxHR.status == 400) {
+				errorAlert();
+			}
+			else{
+				errorAlert();
+			}
+
+		}
+    })
+}
+
+
+
+function UNetGetKMUSeg() {
     // console.log('testPostImage');
     // var imageDataURL = image.toDataURL('image/png');
 
