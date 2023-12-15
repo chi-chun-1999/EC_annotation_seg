@@ -36,6 +36,41 @@ class TaskAdmin():
         self._task.save()
         self._source_data.save()
 
+    def add_task_and_annotation(self,task_name,sub_dir,view):
+        # print(settings.TASK_STORE_PATH)
+        png_list = self._get_source_data_file_list(sub_dir)
+        file_num = len(png_list)
+
+        self._source_data = SourceData.objects.create(file_num=file_num,file_dir=sub_dir)
+        self._task = Task.objects.create(name=task_name,source_data=self._source_data)
+        task_id = self._task.id
+
+        for png in png_list:
+            file_name = os.path.basename(png)
+            research_id = file_name.split('_')[0]
+            # frame_num_from_ori = file_name.split('_')[2].split('.')[0]
+            frame_num_from_ori = file_name.split('_')[2]
+            # print(frame_num_from_ori)
+            # print(file_name,research_id)
+            image_data = ImageData.objects.create(file_name=file_name,research_id=research_id,frame_num_from_ori=frame_num_from_ori,source_data=self._source_data)
+
+            image_data.save()
+            # print(file_name,research_id,frame_num_from_ori)
+
+            # break
+        
+        self._task.save()
+        self._source_data.save()
+
+        tmp_t, tmp_s, tmp_img = self.get_task(task_id)
+        task_img_admin = TaskImageAdmin(tmp_img,image_size=(384,384))
+
+        # create annotation data
+        for i in range(len(tmp_img)):
+            task_img_admin.create_annotation_data(i,view)
+
+
+
     def get_task(self,task_id):
         task = Task.objects.get(id=task_id)
         source_data = task.source_data
