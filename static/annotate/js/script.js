@@ -1010,7 +1010,7 @@ function downloadVideo(){
 
    // var videoId = 1;  // 替换为你要下载的视频的ID
 	var url = '/downloadVideo/'+task_index+'/'+video_name;
-		console.log('downloadLink: ' + url);
+		// console.log('downloadLink: ' + url);
 		fetch(url)
 		.then(response => {
 			if (!response.ok) {
