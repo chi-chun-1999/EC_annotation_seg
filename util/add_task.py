@@ -24,9 +24,9 @@ def create_annotation(task_name):
 
 
 
-tasks = ['chi-chun-a3c-2']
-sub_dir = ['chi-chun-a3c-2']
-view = ['3ch']
+tasks = ['chi-chun-a2c-2','chi-chun-a3c-2','chi-chun-a4c']
+sub_dir = ['chi-chun-a2c-2','chi-chun-a3c-2','chi-chun-a4c']
+view = ['2ch','3ch','4ch']
 
 for i in range(len(tasks)):
     add_task(sub_dir[i],tasks[i],view[i])
