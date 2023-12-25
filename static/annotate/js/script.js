@@ -60,12 +60,12 @@ let key_points = {
 	'start_point': {
 		'x': null,
 		'y': null,
-		'color': 'rgb(255, 0, 0)',
+		'color': 'rgb(255, 0, 255)',
 	},
 	'end_point': {
 		'x': null,
 		'y': null,
-		'color': 'rgb(0, 255, 0)',
+		'color': 'rgb(125, 255, 225)',
 	},
 	'apical_point': {
 		'x': null,
