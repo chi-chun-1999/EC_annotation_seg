@@ -134,7 +134,7 @@ class TaskImageAdmin:
             image_path = settings.TASK_STORE_ROOT_PATH+'/'+self._source_data.file_dir+'/'+self._image_data_list[frame_num].file_name
 
         image = Image.open(image_path)
-        image = image.resize(self._image_size)
+        # image = image.resize(self._image_size)
         
         # print(image.size)
 
