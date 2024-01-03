@@ -51,10 +51,17 @@ def exportDataWithMask(export_json,show_root_path,sub_dir):
         area_list = [2,0,1]
         mask = np.zeros((384,384), dtype=np.uint8)
 
+        save_file = True
+
         for i in area_list:
             annot = polygons[i]
             area = annot['area']
             points = annot['points']
+
+            if len(points) == 0:
+                save_file = False
+                break
+
             polygon_array = np.array(points)
             polygon_array = polygon_array.reshape(-1,2)
 
@@ -70,7 +77,8 @@ def exportDataWithMask(export_json,show_root_path,sub_dir):
             elif area == 'LAM':
                 show_img = imantics_polygons.draw(show_img, color=(0, 0, 255),thickness=1)
 
-        Image.fromarray(show_img).save(show_path)
+        if save_file:
+            Image.fromarray(show_img).save(show_path)
 
 
 
@@ -79,6 +87,9 @@ def exportData2mask(export_json,root_path):
     if os.path.exists(root_path) == False:
         os.makedirs(root_path)
     
+    tmp_img = export_data[0]['image_path']
+    tmp_img = Image.open(tmp_img)
+    tmp_img_size = tmp_img.size
 
     for i in export_data:
         image_path = i['image_path']
@@ -95,7 +106,8 @@ def exportData2mask(export_json,root_path):
         
 
         area_list = [1,0,2]
-        mask = np.zeros((384,384), dtype=np.uint8)
+        mask = np.zeros((tmp_img_size[1],tmp_img_size[0]), dtype=np.uint8)
+        save_file = True
 
 
         for i in area_list:
@@ -103,37 +115,42 @@ def exportData2mask(export_json,root_path):
             annot = polygons[i]
             area = annot['area']
             points = annot['points']
+
+            if len(points) == 0:
+                save_file = False
+                break
+
+
             polygon_array = np.array(points)
             polygon_array = polygon_array.reshape(-1,2)
 
             imantics_polygons = ImanticsPolygons([polygon_array])
             # print(type(imantics_polygons.mask(384,384).array))
             if area == 'LV':
-                mask[imantics_polygons.mask(384,384).array] = 1
+                mask[imantics_polygons.mask(tmp_img_size[0],tmp_img_size[1]).array] = 1
 
             elif area == 'LA':
-                tmp_mask = imantics_polygons.mask(384,384).array
+                tmp_mask = imantics_polygons.mask(tmp_img_size[0],tmp_img_size[1]).array
                 mask[tmp_mask]=2
 
             elif area == 'LAM':
-                tmp_mask = imantics_polygons.mask(384,384).array
+                tmp_mask = imantics_polygons.mask(tmp_img_size[0],tmp_img_size[1]).array
                 mask[tmp_mask]=3
             
 
 
         
-        # print(mask.shape)
-        img = Image.fromarray(mask)
-
-        img.save(export_path)
+        if save_file:
+            Image.fromarray(mask).save(export_path)
+            
 
         # img.save('test_mask.png')
     # return mask
 
 
-task_id = 10
-mask_root_path = '/mnt/chi-chun/data1t/mask/chi-chun-task_test/'
-show_root_path = '/mnt/chi-chun/data1t/show_mask/chi-chun-task_test/'
+task_id = 12
+mask_root_path = '/mnt/chi-chun/data1t/mask/a2c_unregular/'
+show_root_path = '/mnt/chi-chun/data1t/show_mask/a2c_unregular/'
 task = Task.objects.get(id=task_id)
 source_data = task.source_data
 
@@ -143,7 +160,7 @@ source_data = task.source_data
 
 
 annotation_admin = AnnotationAdmin()
-export_data_str = annotation_admin.export(mode='task',task_id=10)
+export_data_str = annotation_admin.export(mode='task',task_id=task_id)
 
 export_data = json.loads(export_data_str)
 
